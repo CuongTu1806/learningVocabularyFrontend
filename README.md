@@ -1,16 +1,41 @@
-# React + Vite
+# learningVocabularyFrontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Frontend for the vocabulary learning platform, built with React + Vite.
 
-Currently, two official plugins are available:
+## Requirements
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Node.js 18+ (recommended: latest LTS)
+- npm 9+
 
-## React Compiler
+## Clone And Run
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```bash
+git clone https://github.com/<your-username>/<your-repo>.git
+cd learningVocabularyFrontend
+npm install
+npm run dev
+```
 
-## Expanding the ESLint configuration
+After running, open the local URL shown in terminal (usually `http://localhost:5173`).
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Scripts
+
+- `npm run dev`: start development server
+- `npm run build`: build production files
+- `npm run preview`: preview production build locally
+- `npm run lint`: run ESLint
+
+## Environment Variables
+
+If your API endpoints or keys are environment-based, create `.env` in project root.
+
+Example:
+
+```env
+VITE_API_BASE_URL=http://localhost:8080
+```
+
+Important:
+
+- Do not commit secrets.
+- `.env` is ignored by Git in `.gitignore`.
