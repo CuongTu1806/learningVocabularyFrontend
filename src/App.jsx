@@ -16,6 +16,13 @@ import ReviewSettingsPage from './pages/ReviewSettingsPage';
 import ProfilePage from './pages/ProfilePage';
 import QuizHistoryPage from './pages/QuizHistoryPage';
 import QuizResultDetailPage from './pages/QuizResultDetailPage';
+import ClassroomsPage from './pages/ClassroomsPage';
+import ClassroomDetailPage from './pages/ClassroomDetailPage';
+import AssignmentsListPage from './pages/AssignmentsListPage';
+import AssignmentDetailPage from './pages/AssignmentDetailPage';
+import ContestsListPage from './pages/ContestsListPage';
+import ContestCreatePage from './pages/ContestCreatePage';
+import ContestPlayPage from './pages/ContestPlayPage';
 
 // Placeholder pages (create these next)
 function ProtectedRoute({ children }) {
@@ -115,6 +122,70 @@ function AppContent() {
           element={
             <ProtectedRoute>
               <QuizResultDetailPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/classes"
+          element={
+            <ProtectedRoute>
+              <ClassroomsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/classes/:id"
+          element={
+            <ProtectedRoute>
+              <ClassroomDetailPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/assignments"
+          element={
+            <ProtectedRoute>
+              <AssignmentsListPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/assignments/:assignmentId"
+          element={
+            <ProtectedRoute>
+              <AssignmentDetailPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/classes/:classId/assignments"
+          element={
+            <ProtectedRoute>
+              <AssignmentsListPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/contests"
+          element={
+            <ProtectedRoute>
+              <ContestsListPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/contests/new"
+          element={
+            <ProtectedRoute>
+              <ContestCreatePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/contests/:contestId/play"
+          element={
+            <ProtectedRoute>
+              <ContestPlayPage />
             </ProtectedRoute>
           }
         />

@@ -7,20 +7,31 @@ const api = axios.create({
 
 // Auto set Authorization header từ localStorage
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('authToken');
-  if (token) {
+  let token = localStorage.getItem('authToken');
+  if (token === 'undefined' || token === 'null') {
+    token = null;
+    localStorage.removeItem('authToken');
+  }
+  if (token?.trim()) {
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });
 
-// Handle response errors
+// 401: session hết hạn — không redirect khi đang login/register (tránh reload, mất thông báo lỗi)
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      // Xóa token nếu unauthorized
+    const status = error.response?.status;
+    const reqPath = error.config?.url || '';
+    const isAuthFormCall =
+      reqPath.includes('/auth/login') ||
+      reqPath.includes('/auth/register') ||
+      reqPath.includes('/auth/refresh');
+
+    if (status === 401 && !isAuthFormCall) {
       localStorage.removeItem('authToken');
+      localStorage.removeItem('refreshToken');
       window.location.href = '/login';
     }
     return Promise.reject(error);
