@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import { lessonAPI, vocabularyAPI } from '../services/index';
 import Layout from '../components/Layout';
 
@@ -30,6 +31,8 @@ const buildMediaUrl = (path) => {
 export default function LessonDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const [lesson, setLesson] = useState(null);
   const [vocabularies, setVocabularies] = useState([]);
   const [selectedVocabId, setSelectedVocabId] = useState(null);
   const [isDetailVisible, setIsDetailVisible] = useState(true);
@@ -43,6 +46,7 @@ export default function LessonDetailPage() {
   const [searchResults, setSearchResults] = useState([]);
   const [searching, setSearching] = useState(false);
   const [addingSearchWord, setAddingSearchWord] = useState(null);
+  const [importing, setImporting] = useState(false);
   const [formData, setFormData] = useState({
     word: '',
     meaning: '',
@@ -51,9 +55,34 @@ export default function LessonDetailPage() {
   });
 
   // Fetch vocabularies
-  useEffect(() => {
-    fetchVocabularies();
+  const fetchLessonDetail = useCallback(async () => {
+    try {
+      setLoading(true);
+      const [lessonResponse, vocabResponse] = await Promise.all([
+        lessonAPI.get(id),
+        lessonAPI.getVocabularies(id),
+      ]);
+      const lessonData = lessonResponse.data || null;
+      const items = vocabResponse.data || [];
+      setLesson(lessonData);
+      setVocabularies(items);
+      setSelectedVocabId((prevId) => {
+        if (items.length === 0) return null;
+        const selectedStillExists = items.some((item) => item.id === prevId);
+        return selectedStillExists ? prevId : items[0].id;
+      });
+      setError(null);
+    } catch (err) {
+      console.error('Fetch error:', err);
+      setError(err.message || 'Lỗi tải từ vựng');
+    } finally {
+      setLoading(false);
+    }
   }, [id]);
+
+  useEffect(() => {
+    fetchLessonDetail();
+  }, [fetchLessonDetail]);
 
   useEffect(() => {
     const keyword = searchKeyword.trim();
@@ -79,26 +108,6 @@ export default function LessonDetailPage() {
     return () => clearTimeout(timer);
   }, [searchKeyword]);
 
-  const fetchVocabularies = async () => {
-    try {
-      setLoading(true);
-      const response = await lessonAPI.getVocabularies(id);
-      const items = response.data || [];
-      setVocabularies(items);
-      setSelectedVocabId((prevId) => {
-        if (items.length === 0) return null;
-        const selectedStillExists = items.some((item) => item.id === prevId);
-        return selectedStillExists ? prevId : items[0].id;
-      });
-      setError(null);
-    } catch (err) {
-      console.error('Fetch error:', err);
-      setError(err.message || 'Lỗi tải từ vựng');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   // Add vocabulary
   const handleAddVocab = async () => {
     if (!formData.word.trim() || !formData.meaning.trim()) {
@@ -110,7 +119,7 @@ export default function LessonDetailPage() {
       await lessonAPI.addVocabulary(id, formData);
       setShowAddModal(false);
       setFormData({ word: '', meaning: '', pronunciation: '', example: '' });
-      await fetchVocabularies();
+      await fetchLessonDetail();
     } catch (err) {
       alert('Lỗi thêm từ vựng: ' + (err.response?.data?.message || err.message));
     }
@@ -128,7 +137,7 @@ export default function LessonDetailPage() {
       setShowEditModal(false);
       setEditingVocab(null);
       setFormData({ word: '', meaning: '', pronunciation: '', example: '' });
-      await fetchVocabularies();
+      await fetchLessonDetail();
     } catch (err) {
       alert('Lỗi cập nhật từ vựng: ' + (err.response?.data?.message || err.message));
     }
@@ -139,7 +148,7 @@ export default function LessonDetailPage() {
     try {
       await lessonAPI.deleteVocabulary(id, vocabId);
       setDeleteConfirm(null);
-      await fetchVocabularies();
+      await fetchLessonDetail();
     } catch (err) {
       alert('Lỗi xóa từ vựng: ' + (err.response?.data?.message || err.message));
     }
@@ -160,6 +169,25 @@ export default function LessonDetailPage() {
   // Reset form
   const resetForm = () => {
     setFormData({ word: '', meaning: '', pronunciation: '', example: '' });
+  };
+
+  const isOwner = lesson?.ownerId != null && Number(lesson.ownerId) === Number(user?.userId);
+
+  const handleDownloadLesson = async () => {
+    try {
+      setImporting(true);
+      const response = await lessonAPI.download(id);
+      const importedLesson = response.data;
+      if (importedLesson?.id) {
+        navigate(`/lesson/${importedLesson.id}`);
+      } else {
+        await fetchLessonDetail();
+      }
+    } catch (err) {
+      alert(err.response?.data?.message || err.message || 'Khong the tai bai hoc ve');
+    } finally {
+      setImporting(false);
+    }
   };
 
   const handleSelectVocab = (vocabId) => {
@@ -209,7 +237,7 @@ export default function LessonDetailPage() {
     try {
       setAddingSearchWord(wordKey);
       await lessonAPI.addVocabulary(id, payload);
-      await fetchVocabularies();
+      await fetchLessonDetail();
       setSearchKeyword('');
       setSearchResults([]);
     } catch (err) {
@@ -243,21 +271,33 @@ export default function LessonDetailPage() {
                   >
                     Quay lai
                   </button>
-                  <button
-                    onClick={() => {
-                      resetForm();
-                      setShowAddModal(true);
-                    }}
-                    className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors font-semibold"
-                  >
-                    Them tu vung
-                  </button>
-                  <button
-                    onClick={() => navigate(`/quiz/${id}`)}
-                    className="inline-flex items-center justify-center px-4 py-2 rounded-lg border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors font-semibold"
-                  >
-                    On tap
-                  </button>
+                  {isOwner ? (
+                    <>
+                      <button
+                        onClick={() => {
+                          resetForm();
+                          setShowAddModal(true);
+                        }}
+                        className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors font-semibold"
+                      >
+                        Them tu vung
+                      </button>
+                      <button
+                        onClick={() => navigate(`/quiz/${id}`)}
+                        className="inline-flex items-center justify-center px-4 py-2 rounded-lg border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors font-semibold"
+                      >
+                        On tap
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      onClick={handleDownloadLesson}
+                      disabled={importing}
+                      className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 disabled:bg-slate-300 transition-colors font-semibold"
+                    >
+                      {importing ? 'Dang tai ve...' : 'Tai bai hoc ve'}
+                    </button>
+                  )}
                 </div>
               </div>
             </header>
@@ -306,7 +346,8 @@ export default function LessonDetailPage() {
                           isDetailVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
                         }`}
                       >
-                        <div className="mb-5 rounded-2xl border border-slate-200 bg-slate-50/70 p-3">
+                        {isOwner && (
+                          <div className="mb-5 rounded-2xl border border-slate-200 bg-slate-50/70 p-3">
                           <div className="flex items-center justify-between gap-3 mb-3">
                             <p className="text-sm font-semibold uppercase tracking-wide text-slate-700">Tim va them tu vung</p>
                             {searching && <span className="text-xs text-blue-600">Dang tim...</span>}
@@ -382,7 +423,8 @@ export default function LessonDetailPage() {
                               </div>
                             )}
                           </div>
-                        </div>
+                          </div>
+                        )}
 
                         <div className="mb-6 flex flex-col md:flex-row md:items-start md:justify-between gap-5">
                           <div className="min-w-0 flex-1">
@@ -433,20 +475,22 @@ export default function LessonDetailPage() {
                           </div>
                         </div>
 
-                        <div className="mt-auto pt-6 flex flex-wrap gap-3">
-                          <button
-                            onClick={() => openEditModal(selectedVocab)}
-                            className="inline-flex items-center justify-center px-4 py-2 rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-100 transition-colors font-semibold"
-                          >
-                            Sua
-                          </button>
-                          <button
-                            onClick={() => setDeleteConfirm(selectedVocab.id)}
-                            className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-red-100 text-red-700 hover:bg-red-200 transition-colors font-semibold"
-                          >
-                            Xoa
-                          </button>
-                        </div>
+                        {isOwner && (
+                          <div className="mt-auto pt-6 flex flex-wrap gap-3">
+                            <button
+                              onClick={() => openEditModal(selectedVocab)}
+                              className="inline-flex items-center justify-center px-4 py-2 rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-100 transition-colors font-semibold"
+                            >
+                              Sua
+                            </button>
+                            <button
+                              onClick={() => setDeleteConfirm(selectedVocab.id)}
+                              className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-red-100 text-red-700 hover:bg-red-200 transition-colors font-semibold"
+                            >
+                              Xoa
+                            </button>
+                          </div>
+                        )}
                       </div>
                     ) : (
                       <div className="h-full flex items-center justify-center text-slate-500">

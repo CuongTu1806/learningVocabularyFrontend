@@ -17,6 +17,9 @@ export const authAPI = {
 // Lesson API calls
 export const lessonAPI = {
   getAll: () => api.get('/lessons'),
+  searchPublic: (query) => api.get('/lessons/public/search', { params: { query } }),
+  get: (id) => api.get(`/lessons/${id}`),
+  download: (id) => api.post(`/lessons/${id}/download`),
   create: (data) => api.post('/lessons', data),
   update: (lessonId, data) => api.put(`/lessons/${lessonId}`, data),
   delete: (lessonId) => api.delete(`/lessons/${lessonId}`),
@@ -75,9 +78,9 @@ const UPLOAD_TIMEOUT_MS = 120000;
 // Assignment API (JWT)
 export const assignmentAPI = {
   list: (classId) =>
-    classId != null
-      ? api.get('/assignments', { params: { classId } })
-      : api.get('/assignments'),
+    classId === null || classId === undefined
+      ? api.get('/assignments')
+      : api.get('/assignments', { params: { classId } }),
   get: (id) => api.get(`/assignments/${id}`),
   create: (data) => api.post('/assignments', data),
   update: (id, data) => api.put(`/assignments/${id}`, data),

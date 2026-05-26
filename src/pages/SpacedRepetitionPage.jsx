@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { spacedRepetitionAPI } from '../services';
 import Layout from '../components/Layout';
 
@@ -9,11 +9,7 @@ export default function SpacedRepetitionPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    fetchData();
-  }, [currentDate]);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setLoading(true);
       const year = currentDate.getFullYear();
@@ -32,7 +28,11 @@ export default function SpacedRepetitionPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentDate]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const handlePrevMonth = () => {
     const newDate = new Date(currentDate);
@@ -54,8 +54,15 @@ export default function SpacedRepetitionPage() {
     return new Date(date.getFullYear(), date.getMonth(), 1).getDay();
   };
 
+  const formatLocalDateKey = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
   const getCardCount = (date) => {
-    const dateStr = date.split('T')[0]; // Convert to YYYY-MM-DD
+    const dateStr = formatLocalDateKey(date);
     const calendarDay = calendar.find((d) => d.date === dateStr);
     return calendarDay?.dueCount || 0;
   };
@@ -94,34 +101,46 @@ export default function SpacedRepetitionPage() {
 
         {/* Daily Summary Cards */}
         {summary && (
-          <div className="grid grid-cols-3 gap-4 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
             {/* Learning Due */}
-            <div className="card bg-gradient-to-br from-blue-50 to-blue-100 border-l-4 border-l-blue-500">
+            <div className="card bg-gradient-to-br from-sky-50 to-sky-100 border-l-4 border-l-sky-400">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-gray-600 font-medium">Cần học</p>
-                  <p className="text-4xl font-bold text-blue-600">{summary.learningDue}</p>
+                  <p className="text-gray-600 font-medium">Learning</p>
+                  <p className="text-4xl font-bold text-sky-600">{summary.learningDue}</p>
                 </div>
+                <div className="text-5xl">📘</div>
+              </div>
+            </div>
+
+            {/* Relearning Due */}
+            <div className="card bg-gradient-to-br from-red-50 to-red-100 border-l-4 border-l-red-500">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-600 font-medium">Relearning</p>
+                  <p className="text-4xl font-bold text-red-600">{summary.relearningDue}</p>
+                </div>
+                <div className="text-5xl">🔴</div>
               </div>
             </div>
 
             {/* Review Due */}
-            <div className="card bg-gradient-to-br from-purple-50 to-purple-100 border-l-4 border-l-purple-500">
+            <div className="card bg-gradient-to-br from-green-50 to-green-100 border-l-4 border-l-green-500">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-gray-600 font-medium">Cần ôn</p>
-                  <p className="text-4xl font-bold text-purple-600">{summary.reviewDue}</p>
+                  <p className="text-gray-600 font-medium">Review</p>
+                  <p className="text-4xl font-bold text-green-600">{summary.reviewDue}</p>
                 </div>
-                <div className="text-5xl">R</div>
+                <div className="text-5xl">✅</div>
               </div>
             </div>
 
             {/* Total Due */}
-            <div className="card bg-gradient-to-br from-green-50 to-green-100 border-l-4 border-l-green-500">
+            <div className="card bg-gradient-to-br from-slate-50 to-slate-100 border-l-4 border-l-slate-400">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-gray-600 font-medium">Tổng cộng</p>
-                  <p className="text-4xl font-bold text-green-600">{summary.totalDue}</p>
+                  <p className="text-4xl font-bold text-slate-700">{summary.totalDue}</p>
                 </div>
               </div>
             </div>
@@ -174,8 +193,7 @@ export default function SpacedRepetitionPage() {
                 {Array.from({ length: daysInMonth }).map((_, idx) => {
                   const day = idx + 1;
                   const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
-                  const dateStr = date.toISOString();
-                  const dueCount = getCardCount(dateStr);
+                  const dueCount = getCardCount(date);
                   
                   // Check if this is today
                   const today = new Date();

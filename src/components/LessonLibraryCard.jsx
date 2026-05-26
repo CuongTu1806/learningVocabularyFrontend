@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
+import PropTypes from 'prop-types';
 
-export default function LessonLibraryCard({ lesson, onStudy, onEdit, onDelete }) {
+export default function LessonLibraryCard({ lesson, onStudy, onEdit, onDelete, onDownload, canManage }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
 
@@ -22,6 +23,8 @@ export default function LessonLibraryCard({ lesson, onStudy, onEdit, onDelete })
 
   const title = lesson?.title || lesson?.name || 'Untitled Lesson';
   const wordsCount = Number.isFinite(lesson?.numberOfWords) ? lesson.numberOfWords : 0;
+  const ownerName = lesson?.ownerUsername || 'Unknown';
+  const visibility = String(lesson?.visibility || 'PRIVATE').toUpperCase();
 
   return (
     <article
@@ -37,56 +40,94 @@ export default function LessonLibraryCard({ lesson, onStudy, onEdit, onDelete })
         <div className="mb-5">
           <h3 className="line-clamp-2 text-[18px] font-bold leading-6 text-slate-900">{title}</h3>
           <p className="mt-2 text-sm text-slate-500">{wordsCount} words</p>
+          <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
+            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-slate-700">{ownerName}</span>
+            <span
+              className={`rounded-full px-2.5 py-1 font-semibold ${
+                visibility === 'PUBLIC'
+                  ? 'bg-emerald-100 text-emerald-700'
+                  : 'bg-amber-100 text-amber-700'
+              }`}
+            >
+              {visibility === 'PUBLIC' ? 'Public' : 'Private'}
+            </span>
+          </div>
         </div>
 
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-3">
           <button
             type="button"
             onClick={onStudy}
             className="rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
           >
-            Study Now
+            {canManage ? 'Study Now' : 'Xem'}
           </button>
 
-          <div className="relative" ref={menuRef}>
+          {canManage ? (
+            <div className="relative" ref={menuRef}>
+              <button
+                type="button"
+                onClick={() => setMenuOpen((prev) => !prev)}
+                className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-gray-100 text-slate-600 transition-colors hover:bg-slate-50"
+                aria-label="Open lesson menu"
+              >
+                <svg viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5" aria-hidden="true">
+                  <path d="M12 6.75a1.75 1.75 0 1 0 0-3.5 1.75 1.75 0 0 0 0 3.5Zm0 7a1.75 1.75 0 1 0 0-3.5 1.75 1.75 0 0 0 0 3.5Zm0 7a1.75 1.75 0 1 0 0-3.5 1.75 1.75 0 0 0 0 3.5Z" />
+                </svg>
+              </button>
+
+              {menuOpen && (
+                <div className="absolute right-0 top-12 z-10 w-36 rounded-xl border border-gray-100 bg-white p-1.5 shadow-lg">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onEdit();
+                      setMenuOpen(false);
+                    }}
+                    className="w-full rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onDelete();
+                      setMenuOpen(false);
+                    }}
+                    className="w-full rounded-lg px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50"
+                  >
+                    Delete
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
             <button
               type="button"
-              onClick={() => setMenuOpen((prev) => !prev)}
-              className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-gray-100 text-slate-600 transition-colors hover:bg-slate-50"
-              aria-label="Open lesson menu"
+              onClick={onDownload}
+              className="inline-flex h-10 items-center justify-center rounded-xl border border-emerald-200 bg-emerald-50 px-4 text-sm font-semibold text-emerald-700 transition-colors hover:bg-emerald-100"
             >
-              <svg viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5" aria-hidden="true">
-                <path d="M12 6.75a1.75 1.75 0 1 0 0-3.5 1.75 1.75 0 0 0 0 3.5Zm0 7a1.75 1.75 0 1 0 0-3.5 1.75 1.75 0 0 0 0 3.5Zm0 7a1.75 1.75 0 1 0 0-3.5 1.75 1.75 0 0 0 0 3.5Z" />
-              </svg>
+              Tải về học
             </button>
-
-            {menuOpen && (
-              <div className="absolute right-0 top-12 z-10 w-36 rounded-xl border border-gray-100 bg-white p-1.5 shadow-lg">
-                <button
-                  type="button"
-                  onClick={() => {
-                    onEdit();
-                    setMenuOpen(false);
-                  }}
-                  className="w-full rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
-                >
-                  Edit
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    onDelete();
-                    setMenuOpen(false);
-                  }}
-                  className="w-full rounded-lg px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50"
-                >
-                  Delete
-                </button>
-              </div>
-            )}
-          </div>
+          )}
         </div>
       </div>
     </article>
   );
 }
+
+LessonLibraryCard.propTypes = {
+  lesson: PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    title: PropTypes.string,
+    name: PropTypes.string,
+    numberOfWords: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    ownerUsername: PropTypes.string,
+    visibility: PropTypes.string,
+  }).isRequired,
+  onStudy: PropTypes.func.isRequired,
+  onEdit: PropTypes.func.isRequired,
+  onDelete: PropTypes.func.isRequired,
+  onDownload: PropTypes.func,
+  canManage: PropTypes.bool,
+};
