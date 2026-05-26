@@ -1,18 +1,48 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { lessonAPI } from '../services/index';
+import { lessonAPI, vocabularyAPI } from '../services/index';
 import Layout from '../components/Layout';
+
+const MEDIA_BASE_URL = import.meta.env.VITE_MEDIA_BASE_URL || 'http://localhost:8080';
+
+const getWordLabel = (vocab) => vocab?.word || vocab?.english || 'N/A';
+const getMeaningLabel = (vocab) => vocab?.meaning || vocab?.vietnamese || 'N/A';
+const getAudioPath = (vocab) => vocab?.audio_path || vocab?.audioPath || '';
+const getImagePath = (vocab) => vocab?.image_path || vocab?.imagePath || '';
+
+const mapSearchResultToLessonPayload = (item) => ({
+  word: item?.word || item?.term || item?.vocabulary || item?.english || '',
+  meaning: item?.meaning || item?.definition || item?.vietnamese || '',
+  pronunciation: item?.pronunciation || '',
+  example: item?.example || '',
+  audio_path: item?.audio_path || item?.audioPath || '',
+  image_path: item?.image_path || item?.imagePath || '',
+  pos: item?.pos || item?.partOfSpeech || '',
+});
+
+const buildMediaUrl = (path) => {
+  if (!path) return '';
+  if (path.startsWith('http://') || path.startsWith('https://')) return path;
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+  return `${MEDIA_BASE_URL}${normalizedPath}`;
+};
 
 export default function LessonDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [vocabularies, setVocabularies] = useState([]);
+  const [selectedVocabId, setSelectedVocabId] = useState(null);
+  const [isDetailVisible, setIsDetailVisible] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingVocab, setEditingVocab] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [searchKeyword, setSearchKeyword] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [searching, setSearching] = useState(false);
+  const [addingSearchWord, setAddingSearchWord] = useState(null);
   const [formData, setFormData] = useState({
     word: '',
     meaning: '',
@@ -25,11 +55,41 @@ export default function LessonDetailPage() {
     fetchVocabularies();
   }, [id]);
 
+  useEffect(() => {
+    const keyword = searchKeyword.trim();
+    if (!keyword) {
+      setSearchResults([]);
+      setSearching(false);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      try {
+        setSearching(true);
+        const response = await vocabularyAPI.search(keyword);
+        setSearchResults(response.data || []);
+      } catch (err) {
+        console.error('Search vocab error:', err);
+        setSearchResults([]);
+      } finally {
+        setSearching(false);
+      }
+    }, 250);
+
+    return () => clearTimeout(timer);
+  }, [searchKeyword]);
+
   const fetchVocabularies = async () => {
     try {
       setLoading(true);
       const response = await lessonAPI.getVocabularies(id);
-      setVocabularies(response.data || []);
+      const items = response.data || [];
+      setVocabularies(items);
+      setSelectedVocabId((prevId) => {
+        if (items.length === 0) return null;
+        const selectedStillExists = items.some((item) => item.id === prevId);
+        return selectedStillExists ? prevId : items[0].id;
+      });
       setError(null);
     } catch (err) {
       console.error('Fetch error:', err);
@@ -102,71 +162,301 @@ export default function LessonDetailPage() {
     setFormData({ word: '', meaning: '', pronunciation: '', example: '' });
   };
 
-  if (loading) return <Layout><div className="text-center p-8 h-96 flex items-center justify-center">⏳ Đang tải từ vựng...</div></Layout>;
+  const handleSelectVocab = (vocabId) => {
+    if (vocabId === selectedVocabId) return;
+    setIsDetailVisible(false);
+    setTimeout(() => {
+      setSelectedVocabId(vocabId);
+      setIsDetailVisible(true);
+    }, 120);
+  };
+
+  const selectedVocab = vocabularies.find((item) => item.id === selectedVocabId) || null;
+
+  const playAudio = () => {
+    const audioPath = getAudioPath(selectedVocab);
+    if (!audioPath) return;
+    const audioUrl = buildMediaUrl(audioPath);
+    const audio = new Audio(audioUrl);
+    audio.play().catch(() => {
+      alert('Không thể phát audio cho từ này');
+    });
+  };
+
+  const playSearchAudio = (audioPath) => {
+    if (!audioPath) return;
+    const audioUrl = buildMediaUrl(audioPath);
+    const audio = new Audio(audioUrl);
+    audio.play().catch(() => {
+      alert('Khong the phat audio cho tu nay');
+    });
+  };
+
+  const handleAddFromSearch = async (item) => {
+    const payload = mapSearchResultToLessonPayload(item);
+    if (!payload.word || !payload.meaning) {
+      alert('Tu duoc chon thieu du lieu word/meaning');
+      return;
+    }
+
+    const wordKey = payload.word.toLowerCase();
+    const exists = vocabularies.some((v) => getWordLabel(v).toLowerCase() === wordKey);
+    if (exists) {
+      alert('Tu nay da ton tai trong bai hoc');
+      return;
+    }
+
+    try {
+      setAddingSearchWord(wordKey);
+      await lessonAPI.addVocabulary(id, payload);
+      await fetchVocabularies();
+      setSearchKeyword('');
+      setSearchResults([]);
+    } catch (err) {
+      alert('Loi them tu: ' + (err.response?.data?.message || err.message));
+    } finally {
+      setAddingSearchWord(null);
+    }
+  };
+
+  if (loading) return <Layout><div className="text-center p-8 h-96 flex items-center justify-center">Dang tai tu vung...</div></Layout>;
 
   return (
-    <Layout>
-      <div className="bg-gradient-to-br from-slate-50 to-slate-100 py-12">
-        <div className="max-w-6xl mx-auto px-6">
-          {/* Header */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
-            <div>
-              <h1 className="text-4xl font-bold text-gradient mb-2">Chi tiết bài học</h1>
-              <p className="text-gray-600 text-lg">{vocabularies.length} từ vựng</p>
-            </div>
-            <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
-              <button 
-                onClick={() => navigate('/lessons')}
-                className="btn-secondary text-center py-3 px-6"
-              >
-                ← Quay lại
-              </button>
-              <button 
-                onClick={() => navigate(`/quiz/${id}`)}
-                className="btn-primary text-center py-3 px-6"
-              >
-                🎯 Ôn tập bài này
-              </button>
-            </div>
-          </div>
+    <Layout hideFooter mainClassName="overflow-hidden">
+      <div className="h-full bg-slate-100 overflow-hidden">
+        <div className="h-full max-w-7xl mx-auto px-4 md:px-6 py-4 md:py-6">
+          <div className="h-full min-h-0 flex flex-col gap-4">
+            <header className="sticky top-0 z-20 bg-white/95 backdrop-blur border border-slate-200 rounded-2xl px-4 md:px-6 py-4 shadow-sm">
+              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                <div className="flex items-center gap-3 md:gap-4">
+                  
+                  <div>
+                    <h1 className="text-2xl md:text-3xl font-bold text-slate-900">Chi tiet bai hoc</h1>
+                    <p className="text-sm md:text-base text-slate-500 mt-1">{vocabularies.length} tu vung</p>
+                  </div>
+                </div>
 
-          {/* Error message */}
-          {error && (
-            <div className="card bg-red-50 border-red-200 mb-6 p-4">
-              <p className="text-red-600">{error}</p>
-            </div>
-          )}
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => navigate('/lessons')}
+                    className="inline-flex items-center justify-center px-4 py-2 rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-100 transition-colors font-medium"
+                  >
+                    Quay lai
+                  </button>
+                  <button
+                    onClick={() => {
+                      resetForm();
+                      setShowAddModal(true);
+                    }}
+                    className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors font-semibold"
+                  >
+                    Them tu vung
+                  </button>
+                  <button
+                    onClick={() => navigate(`/quiz/${id}`)}
+                    className="inline-flex items-center justify-center px-4 py-2 rounded-lg border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors font-semibold"
+                  >
+                    On tap
+                  </button>
+                </div>
+              </div>
+            </header>
 
-          {/* Add Vocabulary Button */}
-          <div className="mb-6 flex justify-end">
-            <button
-              onClick={() => {
-                resetForm();
-                setShowAddModal(true);
-              }}
-              className="btn-primary py-2 px-6 inline-flex items-center gap-2"
-            >
-              Thêm từ vựng
-            </button>
-          </div>
-
-          {/* Vocabulary List */}
-          <div className="card">
-            {vocabularies.length === 0 ? (
-              <p className="text-center text-gray-500 py-12 text-lg">Chưa có từ vựng nào</p>
-            ) : (
-              <div className="space-y-4">
-                {vocabularies.map((vocab, idx) => (
-                  <VocabularyItem 
-                    key={vocab.id} 
-                    vocab={vocab} 
-                    idx={idx + 1}
-                    onEdit={() => openEditModal(vocab)}
-                    onDelete={() => setDeleteConfirm(vocab.id)}
-                  />
-                ))}
+            {error && (
+              <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3">
+                <p className="text-red-600">{error}</p>
               </div>
             )}
+
+            <div className="flex-1 min-h-0 rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+              {vocabularies.length === 0 ? (
+                <p className="text-center text-slate-500 py-16 text-lg">Chua co tu vung nao</p>
+              ) : (
+                <div className="h-full grid grid-cols-1 md:grid-cols-10">
+                  <aside className="md:col-span-3 min-h-0 border-r border-slate-200 bg-slate-50/60 flex flex-col overflow-hidden">
+                    <div className="px-4 py-4 border-b border-slate-200 bg-white">
+                      <h2 className="text-sm font-semibold text-slate-900 uppercase tracking-wide">Danh sach tu</h2>
+                    </div>
+
+                    <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-3 space-y-2">
+                      {vocabularies.map((vocab) => {
+                        const isActive = vocab.id === selectedVocabId;
+                        return (
+                          <button
+                            type="button"
+                            key={vocab.id}
+                            onClick={() => handleSelectVocab(vocab.id)}
+                            className={`w-full text-left px-4 py-3 rounded-xl border transition-all duration-200 ${
+                              isActive
+                                ? 'bg-blue-50 text-blue-700 border-blue-200 shadow-sm'
+                                : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50 hover:border-slate-300'
+                            }`}
+                          >
+                            <span className="block truncate font-medium">{getWordLabel(vocab)}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </aside>
+
+                  <section className="md:col-span-7 p-5 md:p-8 bg-white overflow-y-auto">
+                    {selectedVocab ? (
+                      <div
+                        className={`h-full flex flex-col transition-all duration-300 ${
+                          isDetailVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
+                        }`}
+                      >
+                        <div className="mb-5 rounded-2xl border border-slate-200 bg-slate-50/70 p-3">
+                          <div className="flex items-center justify-between gap-3 mb-3">
+                            <p className="text-sm font-semibold uppercase tracking-wide text-slate-700">Tim va them tu vung</p>
+                            {searching && <span className="text-xs text-blue-600">Dang tim...</span>}
+                          </div>
+
+                          <div className="relative">
+                            <input
+                              type="text"
+                              value={searchKeyword}
+                              onChange={(e) => setSearchKeyword(e.target.value)}
+                              placeholder="Go de tim tu vung toan he thong..."
+                              className="w-full px-4 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            />
+
+                            {searchKeyword.trim() && (
+                              <div className="absolute left-0 right-0 top-[calc(100%+8px)] z-30 max-h-56 rounded-xl border border-slate-200 bg-white shadow-lg overflow-y-auto space-y-2 p-2 pr-1">
+                                {searchResults.length > 0 && (
+                                  searchResults.map((item, index) => {
+                                    const itemWord = getWordLabel(item);
+                                    const itemMeaning = getMeaningLabel(item);
+                                    const itemAudio = getAudioPath(item);
+                                    const itemImage = getImagePath(item);
+                                    const adding = addingSearchWord === itemWord.toLowerCase();
+                                    return (
+                                      <div
+                                        key={`${itemWord}-${index}`}
+                                        className="rounded-xl border border-slate-200 bg-white p-3 flex items-start gap-3"
+                                      >
+                                        {itemImage ? (
+                                          <img
+                                            src={buildMediaUrl(itemImage)}
+                                            alt={itemWord}
+                                            className="w-14 h-14 rounded-lg border border-slate-200 object-cover shrink-0"
+                                          />
+                                        ) : (
+                                          <div className="w-14 h-14 rounded-lg border border-slate-200 bg-slate-100 shrink-0" />
+                                        )}
+
+                                        <div className="min-w-0 flex-1">
+                                          <p className="font-semibold text-slate-900 truncate">{itemWord}</p>
+                                          <p className="text-sm text-slate-600 truncate">{itemMeaning}</p>
+                                          <div className="mt-2 flex items-center gap-2">
+                                            <button
+                                              type="button"
+                                              onClick={() => playSearchAudio(itemAudio)}
+                                              disabled={!itemAudio}
+                                              className="inline-flex items-center justify-center h-7 w-7 rounded-full bg-blue-100 text-blue-700 disabled:bg-slate-200 disabled:text-slate-400 transition-colors"
+                                              title={itemAudio ? 'Phat audio' : 'Khong co audio'}
+                                            >
+                                              <span className="text-xs">🔊</span>
+                                            </button>
+                                            <span className="text-xs text-slate-500 truncate">{item.pronunciation ? `/${item.pronunciation}/` : 'No pronunciation'}</span>
+                                          </div>
+                                        </div>
+
+                                        <button
+                                          type="button"
+                                          onClick={() => handleAddFromSearch(item)}
+                                          disabled={adding}
+                                          className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-emerald-600 text-white hover:bg-emerald-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors"
+                                          title="Them vao bai hoc"
+                                        >
+                                          {adding ? '...' : '+'}
+                                        </button>
+                                      </div>
+                                    );
+                                  })
+                                )}
+
+                                {!searching && searchResults.length === 0 && (
+                                  <p className="text-sm text-slate-500 px-2 py-2">Khong tim thay tu phu hop.</p>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="mb-6 flex flex-col md:flex-row md:items-start md:justify-between gap-5">
+                          <div className="min-w-0 flex-1">
+                            <div className="flex flex-wrap items-center gap-3 mb-3">
+                              <h3 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight">
+                                {getWordLabel(selectedVocab)}
+                              </h3>
+                              <button
+                                type="button"
+                                onClick={playAudio}
+                                disabled={!getAudioPath(selectedVocab)}
+                                className="inline-flex items-center justify-center h-10 w-10 rounded-full bg-blue-600 text-white hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors"
+                                title={getAudioPath(selectedVocab) ? 'Phat audio' : 'Chua co audio'}
+                              >
+                                <span className="text-lg">🔊</span>
+                              </button>
+                            </div>
+
+                            <p className="text-base md:text-lg text-blue-700 font-medium">
+                              / {selectedVocab.pronunciation || 'N/A'} /
+                            </p>
+                          </div>
+
+                          {getImagePath(selectedVocab) && (
+                            <div className="shrink-0 md:w-[216px] lg:w-[240px] rounded-lg border border-slate-200 overflow-hidden bg-slate-100">
+                              <img
+                                src={buildMediaUrl(getImagePath(selectedVocab))}
+                                alt={getWordLabel(selectedVocab)}
+                                loading="lazy"
+                                decoding="async"
+                                className="w-full h-[150px] md:h-[160px] object-cover scale-[1.06] origin-center"
+                              />
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="space-y-4">
+                          <div className="rounded-2xl border border-slate-200 p-5 bg-slate-50/50">
+                            <p className="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-2">Nghia</p>
+                            <p className="text-xl font-semibold text-slate-900">{getMeaningLabel(selectedVocab)}</p>
+                          </div>
+
+                          <div className="rounded-2xl border border-slate-200 p-5 bg-slate-50/50">
+                            <p className="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-2">Vi du</p>
+                            <p className="text-lg leading-relaxed text-slate-700 italic">
+                              {selectedVocab.example || 'Chua co vi du cho tu nay.'}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="mt-auto pt-6 flex flex-wrap gap-3">
+                          <button
+                            onClick={() => openEditModal(selectedVocab)}
+                            className="inline-flex items-center justify-center px-4 py-2 rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-100 transition-colors font-semibold"
+                          >
+                            Sua
+                          </button>
+                          <button
+                            onClick={() => setDeleteConfirm(selectedVocab.id)}
+                            className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-red-100 text-red-700 hover:bg-red-200 transition-colors font-semibold"
+                          >
+                            Xoa
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="h-full flex items-center justify-center text-slate-500">
+                        Chon mot tu vung de xem chi tiet.
+                      </div>
+                    )}
+                  </section>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -211,42 +501,6 @@ export default function LessonDetailPage() {
         </div>
       )}
     </Layout>
-  );
-}
-
-function VocabularyItem({ vocab, idx, onEdit, onDelete }) {
-  return (
-    <div className="p-4 border-b border-gray-200 last:border-0 hover:bg-blue-50 transition-colors">
-      <div className="flex justify-between items-start">
-        <div className="flex-1">
-          <div className="flex items-center gap-3 mb-2">
-            <span className="font-bold text-blue-600 text-lg">{idx}.</span>
-            <div>
-              <p className="text-lg font-bold text-gray-900">{vocab.word || vocab.english}</p>
-              <p className="text-sm text-gray-600">/ {vocab.pronunciation || 'N/A'} /</p>
-            </div>
-          </div>
-          <p className="text-gray-700 ml-8">Nghĩa: <strong>{vocab.meaning || vocab.vietnamese}</strong></p>
-          {vocab.example && (
-            <p className="text-gray-600 ml-8 text-sm mt-1">Ví dụ: <em>{vocab.example}</em></p>
-          )}
-        </div>
-        <div className="flex gap-2 ml-4 flex-shrink-0">
-          <button
-            onClick={onEdit}
-            className="btn-secondary py-1 px-3 text-sm"
-          >
-            Sửa
-          </button>
-          <button
-            onClick={onDelete}
-            className="bg-red-100 hover:bg-red-200 text-red-600 font-semibold py-1 px-3 rounded-lg transition-all text-sm"
-          >
-            Xóa
-          </button>
-        </div>
-      </div>
-    </div>
   );
 }
 

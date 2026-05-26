@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard Học Tập</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+    <div class="flex h-screen bg-gray-50">
+    <aside class="w-64 bg-white border-r p-6">
+        <h1 class="text-2xl font-bold text-indigo-600 mb-10">VocabApp</h1>
+        <ul class="space-y-4">
+            <li class="font-bold text-indigo-600">Trang chủ</li>
+            <li>Bài học</li>
+            <li>Quiz</li>
+        </ul>
+    </aside>
+
+    <main class="flex-1 p-8 overflow-y-auto">
+        <div class="mb-8">
+            <input type="text" placeholder="Tìm kiếm từ vựng..." class="w-full p-4 rounded-2xl border shadow-sm">
+        </div>
+
+        <div class="grid grid-cols-3 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border">
+                <p class="text-gray-400">Từ đã học</p>
+                <h3 class="text-2xl font-bold">342</h3>
+            </div>
+            </div>
+
+        <div class="grid grid-cols-3 gap-6">
+            <div class="bg-blue-600 text-white p-6 rounded-2xl">Bài học...</div>
+            <div class="bg-pink-500 text-white p-6 rounded-2xl">Luyện tập...</div>
+            <div class="bg-green-500 text-white p-6 rounded-2xl">Ôn tập...</div>
+        </div>
+    </main>
+
+    <aside class="w-80 bg-white border-l p-6">
+        <h2 class="font-bold text-lg mb-6">🔥 Chuỗi luyện tập: 7 ngày</h2>
+        
+        <h2 class="font-bold text-lg mb-4">🏆 Bảng xếp hạng</h2>
+        <div class="space-y-4">
+            <div class="flex items-center gap-4 p-2 hover:bg-gray-50 rounded-lg">
+                <span class="font-bold text-gray-400">1</span>
+                <div class="w-8 h-8 rounded-full bg-yellow-200"></div>
+                <span class="flex-1 font-medium">Nguyễn Văn A</span>
+                <span class="font-bold text-indigo-600">1250 pts</span>
+            </div>
+            </div>
+    </aside>
+</div>
+
+</body>
+</html>

@@ -1,10 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { profileService } from '../services/profileService';
 import Layout from '../components/Layout';
+import PersonalInfo from '../components/profile/PersonalInfo';
+import ReviewsChart from '../components/profile/ReviewsChart';
+import TimeChart from '../components/profile/TimeChart';
+import CardCountChart from '../components/profile/CardCountChart';
+import ReviewIntervalChart from '../components/profile/ReviewIntervalChart';
+import CardEaseChart from '../components/profile/CardEaseChart';
+import AddChart from '../components/profile/AddChart';
 
 export default function ProfilePage() {
-  const { user, getProfile, changePassword } = useAuth();
+  const { getProfile, changePassword } = useAuth();
   const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -22,8 +30,15 @@ export default function ProfilePage() {
     const fetchProfile = async () => {
       try {
         setLoading(true);
-        const data = await getProfile();
-        setProfile(data);
+        const [userData, statsData] = await Promise.all([
+          getProfile(),
+          profileService.getProfileStats('month'),
+        ]);
+        // Merge user data with stats data
+        setProfile({
+          ...userData,
+          ...statsData,
+        });
         setError('');
       } catch (err) {
         setError('Không thể tải thông tin hồ sơ');
@@ -91,21 +106,7 @@ export default function ProfilePage() {
   return (
     <Layout>
       <div className="bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen py-12">
-        <div className="max-w-4xl mx-auto px-6">
-          {/* Header */}
-          <div className="card mb-8 bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
-            <div className="flex items-center gap-6">
-              <div className="w-24 h-24 bg-gradient-to-br from-blue-400 to-purple-600 rounded-full flex items-center justify-center text-5xl font-bold text-white">
-                {profile?.username?.charAt(0).toUpperCase() || 'U'}
-              </div>
-              <div className="flex-grow">
-                <h1 className="text-3xl font-bold text-gray-800">{profile?.username}</h1>
-                <p className="text-gray-600 mt-1">{profile?.email}</p>
-                <p className="text-gray-600 mt-1">Thành viên từ: 15/02/2024</p>
-              </div>
-            </div>
-          </div>
-
+        <div className="max-w-6xl mx-auto px-6">
           {/* Messages */}
           {error && (
             <div className="card bg-red-50 border-red-200 mb-6">
@@ -115,82 +116,31 @@ export default function ProfilePage() {
 
           {success && (
             <div className="card bg-green-50 border-green-200 mb-6">
-              <p className="text-green-600 font-semibold">{success}</p>
+              <p className="text-green-600 font-semibold">✅ {success}</p>
             </div>
           )}
 
-          {/* Statistics */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div className="card bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
-              <div className="text-center">
-                <p className="text-gray-600 text-sm">🏆 Xếp hạng</p>
-                <p className="text-4xl font-bold text-blue-600 mt-3">Silver</p>
-                <p className="text-xs text-gray-600 mt-2">Thành viên hoạt động</p>
-              </div>
+          {/* Personal Info & Ranking */}
+          <PersonalInfo profile={profile} />
+
+          {/* Statistics Section */}
+          <div className="space-y-8 mb-8">
+            {/* Row 1: Reviews & Time */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <ReviewsChart />
+              <TimeChart />
             </div>
 
-            <div className="card bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
-              <div className="text-center">
-                <p className="text-gray-600 text-sm">⭐ Điểm xếp hạng</p>
-                <p className="text-4xl font-bold text-purple-600 mt-3">2,450</p>
-                <p className="text-xs text-gray-600 mt-2">Từ các hoạt động</p>
-              </div>
+            {/* Row 2: Card Count & Review Interval */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <CardCountChart />
+              <ReviewIntervalChart />
             </div>
 
-            <div className="card bg-gradient-to-br from-pink-50 to-pink-100 border-pink-200">
-              <div className="text-center">
-                <p className="text-gray-600 text-sm">🔥 Chuỗi liên tục</p>
-                <p className="text-4xl font-bold text-pink-600 mt-3">12 ngày</p>
-                <p className="text-xs text-gray-600 mt-2">Học tập hàng ngày</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Learning Statistics */}
-          <div className="card mb-8">
-            <h2 className="text-2xl font-bold mb-6">Thống kê học tập</h2>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                <p className="text-gray-600 text-sm">Từ vựng học</p>
-                <p className="text-3xl font-bold text-blue-600 mt-2">342</p>
-              </div>
-              <div className="p-4 bg-green-50 rounded-lg border border-green-200">
-                <p className="text-gray-600 text-sm">Bài học hoàn thành</p>
-                <p className="text-3xl font-bold text-green-600 mt-2">12</p>
-              </div>
-              <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
-                <p className="text-gray-600 text-sm">Số lần ôn tập</p>
-                <p className="text-3xl font-bold text-purple-600 mt-2">156</p>
-              </div>
-              <div className="p-4 bg-orange-50 rounded-lg border border-orange-200">
-                <p className="text-gray-600 text-sm">Tỉ lệ thành công</p>
-                <p className="text-3xl font-bold text-orange-600 mt-2">87%</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Account Information */}
-          <div className="card mb-8">
-            <h2 className="text-2xl font-bold mb-6">Thông tin tài khoản</h2>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
-                <div>
-                  <p className="text-gray-600 text-sm">Tên đăng nhập</p>
-                  <p className="text-lg font-semibold text-gray-800 mt-1">{profile?.username}</p>
-                </div>
-              </div>
-              <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
-                <div>
-                  <p className="text-gray-600 text-sm">Email</p>
-                  <p className="text-lg font-semibold text-gray-800 mt-1">{profile?.email}</p>
-                </div>
-              </div>
-              <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
-                <div>
-                  <p className="text-gray-600 text-sm">Trạng thái tài khoản</p>
-                  <p className="text-lg font-semibold text-green-600 mt-1">✅ Hoạt động</p>
-                </div>
-              </div>
+            {/* Row 3: Card Ease & Add */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <CardEaseChart />
+              <AddChart />
             </div>
           </div>
 

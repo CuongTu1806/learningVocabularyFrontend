@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { lessonAPI } from '../services/index';
 import Layout from '../components/Layout';
+import LessonLibraryCard from '../components/LessonLibraryCard';
 
 export default function LessonsPage() {
   const [lessons, setLessons] = useState([]);
@@ -99,13 +100,13 @@ export default function LessonsPage() {
 
   return (
     <Layout>
-      <div className="bg-gradient-to-br from-slate-50 to-slate-100 py-12">
+      <div className="bg-slate-50 py-12">
         <div className="max-w-6xl mx-auto px-6">
           {/* Header with Create Button */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
             <div>
-              <h1 className="text-4xl font-bold text-gradient mb-2">Danh sách bài học</h1>
-              <p className="text-gray-600 text-lg">Chọn bài học để bắt đầu học từ vựng</p>
+              <h1 className="text-4xl font-bold text-slate-900 mb-2">Lesson Library</h1>
+              <p className="text-slate-600 text-lg">Choose a lesson to start your vocabulary journey</p>
             </div>
             <button
               onClick={() => {
@@ -133,10 +134,10 @@ export default function LessonsPage() {
               </div>
             ) : (
               lessons.map((lesson) => (
-                <LessonCard 
-                  key={lesson.id} 
+                <LessonLibraryCard
+                  key={lesson.id}
                   lesson={lesson} 
-                  navigate={navigate}
+                  onStudy={() => navigate(`/lesson/${lesson.id}`)}
                   onEdit={() => openEditModal(lesson)}
                   onDelete={() => setDeleteConfirm(lesson.id)}
                 />
@@ -186,50 +187,6 @@ export default function LessonsPage() {
         </div>
       )}
     </Layout>
-  );
-}
-
-function LessonCard({ lesson, navigate, onEdit, onDelete }) {
-  return (
-    <div className="card hover:shadow-lg transition-shadow">
-      <div className="flex justify-between items-start mb-4">
-        <div className="flex-1">
-          <h3 className="text-xl font-bold text-gray-900">{lesson.name}</h3>
-          <p className="text-sm text-gray-600">{lesson.description || 'Không có mô tả'}</p>
-        </div>
-      </div>
-      
-      <div className="flex flex-col gap-2 pt-4 border-t border-gray-100">
-        <div className="flex gap-2">
-          <button
-            onClick={() => navigate(`/lesson/${lesson.id}`)}
-            className="flex-1 btn-primary text-center py-2 text-sm"
-          >
-            Chi tiết
-          </button>
-          <button
-            onClick={() => navigate(`/quiz/${lesson.id}`)}
-            className="flex-1 btn-secondary text-center py-2 text-sm"
-          >
-            Ôn tập
-          </button>
-        </div>
-        <div className="flex gap-2">
-          <button
-            onClick={onEdit}
-            className="flex-1 btn-secondary text-center py-2 text-sm"
-          >
-            Sửa
-          </button>
-          <button
-            onClick={onDelete}
-            className="flex-1 bg-red-100 hover:bg-red-200 text-red-600 font-semibold py-2 rounded-lg transition-all text-sm"
-          >
-            Xóa
-          </button>
-        </div>
-      </div>
-    </div>
   );
 }
 

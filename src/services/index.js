@@ -60,5 +60,10 @@ export const classAPI = {
 
 // Vocabulary API calls
 export const vocabularyAPI = {
-  search: (query) => api.get('/vocabulary/search', { params: { q: query } }),
+  search: (query) => api.get('/vocabulary/search', { params: { query } }),
+};
+
+/** Bảng xếp hạng global (điểm contest) — body: { message, data: LeaderboardRow[] } */
+export const leaderboardAPI = {
+  getGlobal: () => api.get('/leaderboard/global'),
 };
