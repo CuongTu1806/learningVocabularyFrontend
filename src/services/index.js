@@ -131,3 +131,8 @@ export const contestAPI = {
   getProblemImageBlob: (contestId, problemId) =>
     api.get(`/contests/${contestId}/problems/${problemId}/image`, { responseType: 'blob' }),
 };
+
+/** Bảng xếp hạng global (điểm contest) — body: { message, data: LeaderboardRow[] } */
+export const leaderboardAPI = {
+  getGlobal: () => api.get('/leaderboard/global'),
+};
