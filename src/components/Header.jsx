@@ -12,11 +12,18 @@ export default function Header() {
     navigate('/login');
   };
 
-  const isActive = (path) => location.pathname === path;
+  const isActive = (path) =>
+    location.pathname === path ||
+    (path === '/classes' && location.pathname.startsWith('/classes')) ||
+    (path === '/assignments' && location.pathname.startsWith('/assignments')) ||
+    (path === '/contests' && location.pathname.startsWith('/contests'));
 
   const navItems = [
     { label: 'Trang chủ', path: '/dashboard' },
     { label: 'Bài học', path: '/lessons' },
+    { label: 'Lớp học', path: '/classes' },
+    { label: 'Bài tập', path: '/assignments' },
+    { label: 'Cuộc thi', path: '/contests' },
     { label: 'Quiz', path: '/quiz-history' },
     { label: 'Ôn tập', path: '/spaced-repetition' },
   ];

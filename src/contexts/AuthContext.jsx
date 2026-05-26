@@ -3,23 +3,39 @@ import { authAPI } from '../services/index';
 
 const AuthContext = createContext();
 
+function clearStoredAuth() {
+  localStorage.removeItem('authToken');
+  localStorage.removeItem('refreshToken');
+}
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Check if user is already logged in (token in localStorage)
-    const token = localStorage.getItem('authToken');
-    if (token) {
-      // Fetch user profile using the token
-      authAPI.getProfile()
-        .then(response => {
-          setUser({ token, ...response.data });
+    let raw = localStorage.getItem('authToken');
+    if (raw === 'undefined' || raw === 'null' || !raw?.trim()) {
+      clearStoredAuth();
+      raw = null;
+    }
+
+    if (raw) {
+      const token = raw;
+      authAPI
+        .getProfile()
+        .then((response) => {
+          setUser({
+            token,
+            userId: response.data?.userId,
+            username: response.data?.username,
+            email: response.data?.email,
+            tokenType: response.data?.tokenType,
+          });
         })
-        .catch(err => {
+        .catch((err) => {
           console.error('Failed to fetch profile:', err);
-          localStorage.removeItem('authToken');
+          clearStoredAuth();
           setUser(null);
         })
         .finally(() => setLoading(false));
@@ -28,16 +44,37 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
+  /** Backend trả AuthResponse phẳng: token, refreshToken, tokenType, username, email (không có field user). */
+  const persistAuthSession = (data) => {
+    if (!data?.token) {
+      throw new Error('Phản hồi đăng nhập không có access token');
+    }
+    localStorage.setItem('authToken', data.token);
+    if (data.refreshToken) {
+      localStorage.setItem('refreshToken', data.refreshToken);
+    }
+    setUser({
+      token: data.token,
+      refreshToken: data.refreshToken,
+      tokenType: data.tokenType,
+      userId: data.userId,
+      username: data.username,
+      email: data.email,
+    });
+  };
+
   const login = async (credentials) => {
     try {
       setError(null);
       const response = await authAPI.login(credentials);
-      const { token } = response.data;
-      localStorage.setItem('authToken', token);
-      setUser({ token, ...response.data.user });
+      persistAuthSession(response.data);
       return response.data;
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed');
+      const msg =
+        err.response?.data?.message ||
+        err.message ||
+        'Đăng nhập thất bại';
+      setError(msg);
       throw err;
     }
   };
@@ -45,13 +82,15 @@ export function AuthProvider({ children }) {
   const register = async (data) => {
     try {
       setError(null);
-      const response = await authAPI.register(data);
-      const { token } = response.data;
-      localStorage.setItem('authToken', token);
-      setUser({ token, ...response.data.user });
-      return response.data;
+      await authAPI.register({
+        username: data.username,
+        email: data.email,
+        password: data.password,
+      });
+      // Backend chỉ trả message, không cấp JWT — đăng nhập ngay bằng cùng mật khẩu
+      return login({ username: data.username, password: data.password });
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed');
+      setError(err.response?.data?.message || 'Đăng ký thất bại');
       throw err;
     }
   };
@@ -62,7 +101,7 @@ export function AuthProvider({ children }) {
     } catch (err) {
       console.error('Logout error:', err);
     } finally {
-      localStorage.removeItem('authToken');
+      clearStoredAuth();
       setUser(null);
     }
   };
