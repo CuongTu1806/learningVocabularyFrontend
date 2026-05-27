@@ -146,6 +146,17 @@ const sortCardsByDue = (cards) =>
     .sort((a, b) => a.dueTimestamp - b.dueTimestamp || a.index - b.index)
     .map((entry) => entry.card);
 
+const normalizePostAnswerState = (currentState, rating, nextState) => {
+  const normalizedCurrentState = normalizeState(currentState);
+  const normalizedRating = normalizeState(rating);
+
+  if (normalizedCurrentState === 'review' && normalizedRating === 'again') {
+    return 'relearning';
+  }
+
+  return normalizeState(nextState);
+};
+
 export default function ReviewFlashcardPage() {
   const [cards, setCards] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -196,6 +207,8 @@ export default function ReviewFlashcardPage() {
       return;
     }
 
+    const currentStateBeforeAnswer = normalizeState(currentCard.state);
+
     try {
       setIsSubmittingRating(true);
       const response = await spacedRepetitionAPI.answer({
@@ -203,10 +216,21 @@ export default function ReviewFlashcardPage() {
         rating: rating,
       });
       const updatedCard = response.data || currentCard;
+      const normalizedNextState = normalizePostAnswerState(
+        currentStateBeforeAnswer,
+        rating,
+        updatedCard.state
+      );
+      const normalizedUpdatedCard = {
+        ...updatedCard,
+        state: normalizedNextState,
+      };
 
       const remainingCards = cards.slice(1);
-      const shouldReturnLater = LEARNING_STATES.has(normalizeState(updatedCard.state));
-      const nextCards = sortCardsByDue(shouldReturnLater ? [...remainingCards, updatedCard] : remainingCards);
+      const shouldReturnLater = LEARNING_STATES.has(normalizedNextState);
+      const nextCards = sortCardsByDue(
+        shouldReturnLater ? [...remainingCards, normalizedUpdatedCard] : remainingCards
+      );
 
       if (nextCards.length === 0) {
         setCards([]);
