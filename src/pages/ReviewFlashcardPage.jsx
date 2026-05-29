@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { spacedRepetitionAPI } from '../services';
 import Layout from '../components/Layout';
 
@@ -165,10 +165,15 @@ export default function ReviewFlashcardPage() {
   const [userAnswer, setUserAnswer] = useState('');
   const [showAnswer, setShowAnswer] = useState(false);
   const [isSubmittingRating, setIsSubmittingRating] = useState(false);
+  const cardStartedAtRef = useRef(Date.now());
 
   useEffect(() => {
     fetchDueCards();
   }, []);
+
+  useEffect(() => {
+    cardStartedAtRef.current = Date.now();
+  }, [cards[0]?.id]);
 
   const fetchDueCards = async () => {
     try {
@@ -208,12 +213,14 @@ export default function ReviewFlashcardPage() {
     }
 
     const currentStateBeforeAnswer = normalizeState(currentCard.state);
+    const durationSeconds = Math.max(1, Math.round((Date.now() - cardStartedAtRef.current) / 1000));
 
     try {
       setIsSubmittingRating(true);
       const response = await spacedRepetitionAPI.answer({
         userVocabularyId: currentCard.userVocabularyId,
         rating: rating,
+        durationSeconds,
       });
       const updatedCard = response.data || currentCard;
       const normalizedNextState = normalizePostAnswerState(
@@ -241,6 +248,12 @@ export default function ReviewFlashcardPage() {
       setCards(nextCards);
       setUserAnswer('');
       setShowAnswer(false);
+      cardStartedAtRef.current = Date.now();
+      console.debug('spaced repetition answer response', {
+        rating,
+        durationSeconds,
+        updatedCard,
+      });
     } catch (err) {
       console.error('Lỗi khi gửi đáp án:', err);
       alert('Không thể lưu đáp án. Vui lòng thử lại.');

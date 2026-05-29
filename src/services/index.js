@@ -138,4 +138,6 @@ export const contestAPI = {
 /** Bảng xếp hạng global (điểm contest) — body: { message, data: LeaderboardRow[] } */
 export const leaderboardAPI = {
   getGlobal: () => api.get('/leaderboard/global'),
+  getContest: (mode = 'all_time') => api.get('/leaderboard/contest', { params: { mode } }),
+  getLessons: (range = 'all_time') => api.get('/leaderboard/lessons', { params: { range } }),
 };
