@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
 import { lessonAPI } from '../services/index';
@@ -10,8 +10,7 @@ export default function LessonsPage() {
   const [lessons, setLessons] = useState([]);
   const [publicSearchLessons, setPublicSearchLessons] = useState([]);
   const [searchText, setSearchText] = useState('');
-  const [exactLessonIdInput, setExactLessonIdInput] = useState('');
-  const [appliedExactLessonId, setAppliedExactLessonId] = useState('');
+  const [appliedSearchText, setAppliedSearchText] = useState('');
   const [loading, setLoading] = useState(true);
   const [searchingPublic, setSearchingPublic] = useState(false);
   const [error, setError] = useState(null);
@@ -32,7 +31,7 @@ export default function LessonsPage() {
   }, []);
 
   useEffect(() => {
-    const keyword = searchText.trim();
+    const keyword = appliedSearchText.trim();
     if (!keyword) {
       setPublicSearchLessons([]);
       setSearchingPublic(false);
@@ -53,7 +52,7 @@ export default function LessonsPage() {
     }, 250);
 
     return () => clearTimeout(timer);
-  }, [searchText]);
+  }, [appliedSearchText]);
 
   const fetchLessons = async () => {
     try {
@@ -138,39 +137,6 @@ export default function LessonsPage() {
     setFormData({ name: '', description: '', visibility: 'PRIVATE' });
   };
 
-  const filteredLessons = useMemo(() => {
-    const appliedExactId = appliedExactLessonId.trim();
-
-    return lessons.filter((lesson) => {
-      if (appliedExactId) {
-        return String(lesson.id) === appliedExactId;
-      }
-
-      return true;
-    });
-  }, [lessons, appliedExactLessonId]);
-
-  const handleExactSearch = (event) => {
-    event.preventDefault();
-    const value = exactLessonIdInput.trim();
-    if (!value) {
-      setAppliedExactLessonId('');
-      return;
-    }
-    if (!/^\d+$/.test(value)) {
-      alert('Mã bài học phải là số');
-      return;
-    }
-    setAppliedExactLessonId(value);
-    setSearchText('');
-  };
-
-  const clearSearch = () => {
-    setSearchText('');
-    setExactLessonIdInput('');
-    setAppliedExactLessonId('');
-  };
-
   const handleDownloadLesson = async (lessonId) => {
     try {
       const response = await lessonAPI.download(lessonId);
@@ -185,8 +151,13 @@ export default function LessonsPage() {
     }
   };
 
+  const handleSearchLessons = (event) => {
+    event.preventDefault();
+    setAppliedSearchText(searchText);
+  };
+
   let lessonsContent;
-  if (searchText.trim()) {
+  if (appliedSearchText.trim()) {
     if (searchingPublic) {
       lessonsContent = (
         <div className="col-span-full text-center text-gray-500 py-12">
@@ -218,14 +189,8 @@ export default function LessonsPage() {
         <p className="text-lg">Chưa có bài học nào</p>
       </div>
     );
-  } else if (filteredLessons.length === 0) {
-    lessonsContent = (
-      <div className="col-span-full text-center text-gray-500 py-12">
-        <p className="text-lg">Không tìm thấy bài học phù hợp</p>
-      </div>
-    );
   } else {
-    lessonsContent = filteredLessons.map((lesson) => (
+    lessonsContent = lessons.map((lesson) => (
       <LessonLibraryCard
         key={lesson.id}
         lesson={lesson}
@@ -262,47 +227,26 @@ export default function LessonsPage() {
           </div>
 
           <div className="card mb-8">
-            <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_260px_auto]">
+            <form onSubmit={handleSearchLessons} className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto]">
               <div>
                 <label htmlFor="lesson-search-input" className="block text-sm font-semibold text-gray-700 mb-2">Tìm bài học</label>
                 <input
                   id="lesson-search-input"
                   type="text"
                   value={searchText}
-                  onChange={(e) => {
-                    setSearchText(e.target.value);
-                    if (appliedExactLessonId) {
-                      setAppliedExactLessonId('');
-                    }
-                  }}
+                  onChange={(e) => setSearchText(e.target.value)}
                   placeholder="Tìm theo tên bài học hoặc tên người tạo public"
                   className="input-field"
                 />
               </div>
-              <form onSubmit={handleExactSearch}>
-                <label htmlFor="lesson-id-input" className="block text-sm font-semibold text-gray-700 mb-2">Mã bài học</label>
-                <input
-                  id="lesson-id-input"
-                  type="text"
-                  value={exactLessonIdInput}
-                  onChange={(e) => setExactLessonIdInput(e.target.value)}
-                  placeholder="Nhập ID lesson"
-                  className="input-field"
-                />
-              </form>
-              <div className="flex items-end gap-2">
-                <button type="button" onClick={handleExactSearch} className="btn-primary py-3 px-5">
-                  Tìm mã
-                </button>
-                <button type="button" onClick={clearSearch} className="btn-secondary py-3 px-5">
-                  Xóa lọc
+              <div className="flex items-end">
+                <button type="submit" className="btn-primary py-3 px-5">
+                  Tìm kiếm
                 </button>
               </div>
-            </div>
+            </form>
             <div className="mt-3 flex flex-wrap gap-2 text-sm text-slate-500">
-              <span>Tìm tương đối theo tên bài học hoặc tên người tạo công khai.</span>
-              <span className="text-slate-300">|</span>
-              <span>Tìm mã sẽ khớp chính xác theo id lesson.</span>
+              <span>Chỉ hiển thị kết quả sau khi bấm Tìm kiếm.</span>
             </div>
           </div>
 

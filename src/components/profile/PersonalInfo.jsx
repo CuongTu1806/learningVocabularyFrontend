@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 export default function PersonalInfo({ profile = {} }) {
   return (
@@ -22,7 +23,7 @@ export default function PersonalInfo({ profile = {} }) {
         <div className="card bg-gradient-to-br from-yellow-50 to-yellow-100 border-yellow-200">
           <div className="text-center">
             <p className="text-gray-600 text-sm">🏆 Rank hiện tại</p>
-            <p className="text-3xl font-bold text-yellow-600 mt-3">{profile?.currentRank || 'Silver'}</p>
+            <p className="text-3xl font-bold text-yellow-600 mt-3">{profile?.currentRank ?? 'Chưa xếp hạng'}</p>
             <p className="text-xs text-gray-600 mt-2">Thành viên hoạt động</p>
           </div>
         </div>
@@ -30,7 +31,7 @@ export default function PersonalInfo({ profile = {} }) {
         <div className="card bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
           <div className="text-center">
             <p className="text-gray-600 text-sm">⭐ Điểm hiện tại</p>
-            <p className="text-3xl font-bold text-purple-600 mt-3">{profile?.currentRankPoints?.toLocaleString() || '2,450'}</p>
+            <p className="text-3xl font-bold text-purple-600 mt-3">{(profile?.currentRankPoints ?? 0).toLocaleString()}</p>
             <p className="text-xs text-gray-600 mt-2">Điểm xếp hạng</p>
           </div>
         </div>
@@ -38,15 +39,15 @@ export default function PersonalInfo({ profile = {} }) {
         <div className="card bg-gradient-to-br from-pink-50 to-pink-100 border-pink-200">
           <div className="text-center">
             <p className="text-gray-600 text-sm">🔥 Streak</p>
-            <p className="text-3xl font-bold text-pink-600 mt-3">{profile?.currentStreak || '5'}</p>
+            <p className="text-3xl font-bold text-pink-600 mt-3">{profile?.currentStreak ?? 0}</p>
             <p className="text-xs text-gray-600 mt-2">Ngày liên tiếp</p>
           </div>
         </div>
 
         <div className="card bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
           <div className="text-center">
-            <p className="text-gray-600 text-sm">🥇 Rank cao nhất</p>
-            <p className="text-3xl font-bold text-blue-600 mt-3">{profile?.maxRank || 'Gold'}</p>
+            <p className="text-gray-600 text-sm">🥇 Điểm cao nhất</p>
+            <p className="text-3xl font-bold text-blue-600 mt-3">{(profile?.maxRating ?? profile?.maxRankPoints ?? 0).toLocaleString()}</p>
             <p className="text-xs text-gray-600 mt-2">Đạt được</p>
           </div>
         </div>
@@ -54,7 +55,7 @@ export default function PersonalInfo({ profile = {} }) {
         <div className="card bg-gradient-to-br from-green-50 to-green-100 border-green-200">
           <div className="text-center">
             <p className="text-gray-600 text-sm">🎯 Contests</p>
-            <p className="text-3xl font-bold text-green-600 mt-3">{profile?.contestsParticipated || '24'}</p>
+            <p className="text-3xl font-bold text-green-600 mt-3">{profile?.contestsParticipated ?? 0}</p>
             <p className="text-xs text-gray-600 mt-2">Đã tham gia</p>
           </div>
         </div>
@@ -62,7 +63,7 @@ export default function PersonalInfo({ profile = {} }) {
         <div className="card bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
           <div className="text-center">
             <p className="text-gray-600 text-sm">📅 Online tháng này</p>
-            <p className="text-3xl font-bold text-orange-600 mt-3">{profile?.daysOnlineThisMonth || '12'}</p>
+            <p className="text-3xl font-bold text-orange-600 mt-3">{profile?.daysOnlineThisMonth ?? 0}</p>
             <p className="text-xs text-gray-600 mt-2">Ngày hoạt động</p>
           </div>
         </div>
@@ -70,3 +71,18 @@ export default function PersonalInfo({ profile = {} }) {
     </>
   );
 }
+
+PersonalInfo.propTypes = {
+  profile: PropTypes.shape({
+    username: PropTypes.string,
+    email: PropTypes.string,
+    createdAt: PropTypes.string,
+    currentRank: PropTypes.string,
+    currentRankPoints: PropTypes.number,
+    maxRankPoints: PropTypes.number,
+    maxRating: PropTypes.number,
+    currentStreak: PropTypes.number,
+    contestsParticipated: PropTypes.number,
+    daysOnlineThisMonth: PropTypes.number,
+  }),
+};

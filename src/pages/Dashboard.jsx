@@ -419,7 +419,7 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+          {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
             <div className="card bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
               <div className="flex items-center justify-between">
                 <div>
@@ -446,7 +446,7 @@ export default function Dashboard() {
                 </div>
               </div>
             </div>
-          </div>
+          </div> */}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12 items-stretch">
             <div className="card h-full flex flex-col overflow-hidden border-amber-100/80 bg-gradient-to-br from-amber-50/90 via-white to-orange-50/80">

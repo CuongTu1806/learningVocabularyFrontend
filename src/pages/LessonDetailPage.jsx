@@ -172,6 +172,7 @@ export default function LessonDetailPage() {
   };
 
   const isOwner = lesson?.ownerId != null && Number(lesson.ownerId) === Number(user?.userId);
+  const canStartQuiz = lesson?.currentUserCanQuiz === true || isOwner;
 
   const handleDownloadLesson = async () => {
     try {
@@ -289,6 +290,13 @@ export default function LessonDetailPage() {
                         On tap
                       </button>
                     </>
+                  ) : canStartQuiz ? (
+                    <button
+                      onClick={() => navigate(`/quiz/${id}`)}
+                      className="inline-flex items-center justify-center px-4 py-2 rounded-lg border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors font-semibold"
+                    >
+                      On tap
+                    </button>
                   ) : (
                     <button
                       onClick={handleDownloadLesson}
