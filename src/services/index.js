@@ -59,6 +59,8 @@ export const classAPI = {
   list: () => api.get('/classes'),
   get: (id) => api.get(`/classes/${id}`),
   getMembers: (id) => api.get(`/classes/${id}/members`),
+  getPendingMembers: (id) => api.get(`/classes/${id}/members/pending`),
+  getBoard: (id) => api.get(`/classes/${id}/board`),
   create: (data) => api.post('/classes', data),
   update: (id, data) => api.put(`/classes/${id}`, data),
   delete: (id) => api.delete(`/classes/${id}`),
@@ -66,6 +68,10 @@ export const classAPI = {
   leave: (id) => api.post(`/classes/${id}/leave`),
   invite: (id, data) => api.post(`/classes/${id}/invite`, data),
   removeMember: (classId, userId) => api.delete(`/classes/${classId}/members/${userId}`),
+  approveMember: (classId, userId) => api.post(`/classes/${classId}/members/${userId}/approve`),
+  rejectMember: (classId, userId) => api.post(`/classes/${classId}/members/${userId}/reject`),
+  createBoardPost: (classId, data) => api.post(`/classes/${classId}/board`, data),
+  addBoardComment: (classId, postId, data) => api.post(`/classes/${classId}/board/${postId}/comments`, data),
 };
 
 // Vocabulary API calls

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useLocation, useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import Layout from '../components/Layout';
 import { assignmentAPI, classAPI } from '../services/index';
@@ -15,6 +15,7 @@ function defaultDueLocal() {
 
 export default function AssignmentsListPage() {
   const { classId } = useParams();
+  const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
   const [items, setItems] = useState([]);
@@ -30,6 +31,8 @@ export default function AssignmentsListPage() {
     dueDate: defaultDueLocal(),
   });
   const [createFiles, setCreateFiles] = useState([]);
+  const [questionMode, setQuestionMode] = useState('file'); // 'file' | 'quiz' | 'fill'
+  const [questions, setQuestions] = useState([]);
 
   const isClassScope = Boolean(classId);
   const canCreate =
@@ -37,6 +40,14 @@ export default function AssignmentsListPage() {
     classroom &&
     (classroom.currentUserIsOwner === true ||
       sameUserId(classroom.ownerId, user?.userId));
+
+  useEffect(() => {
+    if (!isClassScope) return;
+    const params = new URLSearchParams(location.search);
+    if (params.get('create') === '1') {
+      setShowModal(true);
+    }
+  }, [isClassScope, location.search]);
 
   const load = useCallback(async () => {
     try {
@@ -90,15 +101,19 @@ export default function AssignmentsListPage() {
       alert('Chọn hạn nộp');
       return;
     }
-    const due = `${form.dueDate.length === 16 ? `${form.dueDate}:00` : form.dueDate}`;
+    const due = form.dueDate.length === 16 ? `${form.dueDate}:00` : form.dueDate;
+    const assignmentType = questionMode === 'file' ? 'file' : questionMode === 'quiz' ? 'quiz' : 'fill';
     try {
       setSaving(true);
-      const res = await assignmentAPI.create({
+      const payload = {
         classId: Number(classId),
         title: form.title.trim(),
         description: form.description.trim() || undefined,
         dueDate: due,
-      });
+        type: assignmentType,
+      };
+      if (questionMode !== 'file') payload.questions = questions;
+      const res = await assignmentAPI.create(payload);
       const created = unwrapApiData(res);
       const newId = created?.id;
       if (newId != null && createFiles.length > 0) {
@@ -149,11 +164,7 @@ export default function AssignmentsListPage() {
               {isClassScope ? 'Bài tập trong lớp' : 'Bài tập tôi đã giao'}
             </h1>
             <p className="text-gray-600 text-lg">
-              {isClassScope
-                ? classroom?.name
-                  ? `Lớp: ${classroom.name}`
-                  : 'Danh sách bài tập theo lớp'
-                : 'Các bài tập bạn đã tạo (chủ lớp)'}
+              {isClassScope ? (classroom?.name ? `Lớp: ${classroom.name}` : 'Danh sách bài tập theo lớp') : 'Các bài tập bạn đã tạo (chủ lớp)'}
             </p>
           </div>
 
@@ -164,19 +175,7 @@ export default function AssignmentsListPage() {
           )}
 
           {canCreate && (
-            <div className="flex justify-end mb-8">
-              <button
-                type="button"
-                onClick={() => {
-                  setForm({ title: '', description: '', dueDate: defaultDueLocal() });
-                  setCreateFiles([]);
-                  setShowModal(true);
-                }}
-                className="btn-primary py-2 px-6"
-              >
-                Giao bài mới
-              </button>
-            </div>
+            <div className="mb-8 text-sm text-gray-500">Mở từ trang lớp để tạo bài tập.</div>
           )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -229,8 +228,17 @@ export default function AssignmentsListPage() {
             <h3 className="text-2xl font-bold text-gray-800 mb-6">Giao bài mới</h3>
             <div className="space-y-4">
               <div>
-                <label className="block font-semibold text-gray-700 mb-2">Tiêu đề *</label>
+                <label htmlFor="assignment-type" className="block font-semibold text-gray-700 mb-2">Loại bài tập</label>
+                <div id="assignment-type" className="flex gap-2">
+                  <button type="button" onClick={() => setQuestionMode('file')} className={`px-3 py-1 rounded ${questionMode === 'file' ? 'bg-blue-600 text-white' : 'bg-white border'}`}>Nộp file / văn bản</button>
+                  <button type="button" onClick={() => setQuestionMode('quiz')} className={`px-3 py-1 rounded ${questionMode === 'quiz' ? 'bg-blue-600 text-white' : 'bg-white border'}`}>Trắc nghiệm</button>
+                  <button type="button" onClick={() => setQuestionMode('fill')} className={`px-3 py-1 rounded ${questionMode === 'fill' ? 'bg-blue-600 text-white' : 'bg-white border'}`}>Điền đáp án</button>
+                </div>
+              </div>
+              <div>
+                <label htmlFor="assignment-title" className="block font-semibold text-gray-700 mb-2">Tiêu đề *</label>
                 <input
+                  id="assignment-title"
                   className="input-field"
                   value={form.title}
                   onChange={(e) => setForm({ ...form, title: e.target.value })}
@@ -238,8 +246,9 @@ export default function AssignmentsListPage() {
                 />
               </div>
               <div>
-                <label className="block font-semibold text-gray-700 mb-2">Mô tả</label>
+                <label htmlFor="assignment-description" className="block font-semibold text-gray-700 mb-2">Mô tả</label>
                 <textarea
+                  id="assignment-description"
                   className="input-field h-24 resize-none"
                   value={form.description}
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
@@ -247,8 +256,9 @@ export default function AssignmentsListPage() {
                 />
               </div>
               <div>
-                <label className="block font-semibold text-gray-700 mb-2">Hạn nộp *</label>
+                <label htmlFor="assignment-due" className="block font-semibold text-gray-700 mb-2">Hạn nộp *</label>
                 <input
+                  id="assignment-due"
                   type="datetime-local"
                   className="input-field"
                   value={form.dueDate}
@@ -257,8 +267,9 @@ export default function AssignmentsListPage() {
                 <p className="text-xs text-gray-500 mt-1">Phải sau thời điểm hiện tại (theo quy tắc server)</p>
               </div>
               <div>
-                <label className="block font-semibold text-gray-700 mb-2">Đính kèm đề (tuỳ chọn)</label>
+                <label htmlFor="assignment-files" className="block font-semibold text-gray-700 mb-2">Đính kèm đề (tuỳ chọn)</label>
                 <input
+                  id="assignment-files"
                   type="file"
                   multiple
                   className="input-field text-sm"
@@ -268,6 +279,55 @@ export default function AssignmentsListPage() {
                 />
                 <p className="text-xs text-gray-500 mt-1">Tối đa 10MB mỗi file, nhiều file (tối đa 20 mỗi lần).</p>
               </div>
+
+              {questionMode !== 'file' && (
+                <div className="mt-4">
+                  <h4 className="font-semibold mb-2">Câu hỏi ({questionMode === 'quiz' ? 'Trắc nghiệm' : 'Điền đáp án'})</h4>
+                  <div className="space-y-3">
+                    {questions.map((q, qi) => (
+                      <div key={q.id || q.text || qi} className="p-3 border rounded">
+                        <input className="input-field mb-2" value={q.text} onChange={(e) => setQuestions(questions.map((x) => (x.id === q.id ? { ...x, text: e.target.value } : x)))} placeholder={`Câu hỏi ${qi + 1}`} />
+                        {questionMode === 'quiz' && (
+                          <div className="space-y-2">
+                            {(q.choices||[]).map((ch, ci) => (
+                              <div key={ch.id || ch.text || ci} className="flex items-center gap-2">
+                                <input type="text" className="input-field flex-1" value={ch.text} onChange={(e)=>{
+                                  const next = questions.map((x)=>{
+                                    if(x.id !== q.id) return x;
+                                    const choices = (x.choices||[]).map((c)=> c.id === ch.id ? {...c,text:e.target.value}:c);
+                                    return {...x, choices};
+                                  });
+                                  setQuestions(next);
+                                }} />
+                                <label className="text-sm"><input type="checkbox" checked={ch.correct} onChange={(e)=>{
+                                  const next = questions.map((x)=>{
+                                    if(x.id !== q.id) return x;
+                                    const choices = (x.choices||[]).map((c)=> c.id === ch.id ? {...c,correct:e.target.checked}:c);
+                                    return {...x, choices};
+                                  });
+                                  setQuestions(next);
+                                }} /> Đúng</label>
+                              </div>
+                            ))}
+                            <div className="flex gap-2 mt-2">
+                              <button type="button" className="btn-secondary" onClick={()=>{
+                                setQuestions(questions.map((x)=>x.id===q.id?{...x,choices:[...(x.choices||[]),{id:crypto.randomUUID(),text:'',correct:false}]}:x));
+                              }}>Thêm lựa chọn</button>
+                              <button type="button" className="text-red-600" onClick={()=>setQuestions(questions.filter((x)=>x.id!==q.id))}>Xóa câu hỏi</button>
+                            </div>
+                          </div>
+                        )}
+                        {questionMode === 'fill' && (
+                          <div className="text-sm text-gray-600 mt-2">Nhập đáp án đúng cho câu hỏi ở dưới (học sinh sẽ nhập văn bản)</div>
+                        )}
+                      </div>
+                    ))}
+                    <div>
+                          <button type="button" className="btn-primary" onClick={()=>setQuestions([...questions, { id: crypto.randomUUID(), text:'', choices: questionMode==='quiz' ? [] : undefined }])}>Thêm câu hỏi</button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
             <div className="flex gap-3 justify-end mt-6">
               <button type="button" className="btn-secondary px-6" onClick={() => setShowModal(false)}>

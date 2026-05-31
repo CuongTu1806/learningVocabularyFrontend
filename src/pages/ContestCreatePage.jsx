@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import Layout from '../components/Layout';
 import { contestAPI } from '../services/index';
 import { unwrapApiData } from '../utils/apiHelpers';
@@ -40,6 +41,7 @@ const emptyProblem = () => ({
 
 export default function ContestCreatePage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [startTime, setStartTime] = useState(defaultStartLocal());
@@ -178,6 +180,16 @@ export default function ContestCreatePage() {
 
   return (
     <Layout>
+      {!(user?.role === 'teacher' || user?.role === 'admin') ? (
+        <div className="max-w-3xl mx-auto px-6 py-20">
+          <div className="card bg-amber-50 border-amber-200 p-6 text-amber-800">
+            <p className="font-semibold">Bạn không có quyền tạo cuộc thi. Chỉ giáo viên hoặc admin được phép.</p>
+            <div className="mt-4">
+              <button type="button" className="btn-primary" onClick={() => navigate('/contests')}>Về danh sách cuộc thi</button>
+            </div>
+          </div>
+        </div>
+      ) : (
       <div className="bg-gradient-to-br from-slate-50 to-indigo-50 py-12 min-h-screen">
         <div className="max-w-3xl mx-auto px-6">
           <button
@@ -384,6 +396,7 @@ export default function ContestCreatePage() {
           </form>
         </div>
       </div>
+      )}
     </Layout>
   );
 }

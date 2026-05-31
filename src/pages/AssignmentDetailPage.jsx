@@ -23,14 +23,40 @@ export default function AssignmentDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [submitContent, setSubmitContent] = useState('');
+  const [answers, setAnswers] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [gradeInputs, setGradeInputs] = useState({});
   const [showEdit, setShowEdit] = useState(false);
   const [editForm, setEditForm] = useState({ title: '', description: '', dueDate: '' });
   const [saving, setSaving] = useState(false);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [modalSubmission, setModalSubmission] = useState(null);
   const [studentFiles, setStudentFiles] = useState([]);
   const [moreAssignFiles, setMoreAssignFiles] = useState([]);
   const [uploadingAssign, setUploadingAssign] = useState(false);
+
+  // Normalize student's answer to a choice index for q.choices
+  const getSelectedIndex = (studentAnsRaw, q) => {
+    if (studentAnsRaw === null || studentAnsRaw === undefined) return -1;
+    // numeric index as string or number
+    const num = Number(studentAnsRaw);
+    if (Number.isFinite(num)) return num;
+    let s = String(studentAnsRaw).trim();
+    if (!s) return -1;
+    // if starts with a letter (A/B/C) possibly followed by punctuation, use first letter
+    const first = s.charAt(0).toUpperCase();
+    const code = first.codePointAt(0);
+    if (code >= 65 && code <= 90) {
+      const idx = code - 65;
+      if (q && Array.isArray(q.choices) && idx >= 0 && idx < q.choices.length) return idx;
+    }
+    // match by text (case-insensitive)
+    if (q && Array.isArray(q.choices)) {
+      const idx = q.choices.findIndex((c) => String(c.text).trim().toLowerCase() === s.toLowerCase());
+      if (idx >= 0) return idx;
+    }
+    return -1;
+  };
 
   const load = useCallback(async () => {
     try {
@@ -85,6 +111,16 @@ export default function AssignmentDetailPage() {
       } else {
         setSubmissions([]);
       }
+      // initialize answers if assignment contains questions
+      if (data.questions && Array.isArray(data.questions)) {
+        const init = {};
+        data.questions.forEach((q, idx) => {
+          init[idx] = q.type === 'fill' ? '' : null;
+        });
+        setAnswers(init);
+      } else {
+        setAnswers({});
+      }
     } catch (err) {
       setError(err.response?.data?.message || err.message || 'Lỗi tải');
       setAssignment(null);
@@ -99,6 +135,25 @@ export default function AssignmentDetailPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    // If assignment has questions (quiz/fill), submit answers
+    if (assignment?.questions && Array.isArray(assignment.questions) && assignment.questions.length > 0) {
+      // build answers array
+      const payload = { answers: [] };
+      for (let i = 0; i < assignment.questions.length; i += 1) {
+        payload.answers.push(answers[i] ?? null);
+      }
+      try {
+        setSubmitting(true);
+        await assignmentAPI.submit(Number(assignmentId), payload);
+        await load();
+      } catch (err) {
+        alert(err.response?.data?.message || err.message);
+      } finally {
+        setSubmitting(false);
+      }
+      return;
+    }
+
     const hasText = submitContent.trim().length > 0;
     const hasFiles = studentFiles.length > 0;
     if (!hasText && !hasFiles) {
@@ -255,8 +310,8 @@ export default function AssignmentDetailPage() {
             type="button"
             onClick={() =>
               assignment.classId
-                ? navigate(`/classes/${assignment.classId}/assignments`)
-                : navigate('/assignments')
+                ? navigate(`/classes/${assignment.classId}`)
+                : navigate('/classes')
             }
             className="mb-6 text-blue-600 font-semibold hover:text-blue-800"
           >
@@ -396,6 +451,18 @@ export default function AssignmentDetailPage() {
                             >
                               Lưu điểm
                             </button>
+                            {Array.isArray(s.details) && s.details.length > 0 && (
+                              <button
+                                type="button"
+                                className="btn-secondary py-1 px-3 text-sm"
+                                onClick={() => {
+                                  setModalSubmission(s);
+                                  setShowDetailsModal(true);
+                                }}
+                              >
+                                Xem chi tiết
+                              </button>
+                            )}
                           </div>
                         </td>
                       </tr>
@@ -416,43 +483,146 @@ export default function AssignmentDetailPage() {
             </div>
           )}
 
+          {!isTeacher && hasSubmitted && assignment.currentUserSubmission?.details?.length > 0 && (
+            <div className="card mb-8">
+              <h3 className="text-lg font-bold mb-3">Chi tiết bài làm</h3>
+              <div className="space-y-3">
+                {assignment.currentUserSubmission.details.map((d) => {
+                  const q = assignment?.questions?.[d.questionIndex];
+                  const studentAnsRaw = d.studentAnswer;
+                  const studentAnsNum = Number.isFinite(Number(studentAnsRaw)) ? Number(studentAnsRaw) : null;
+                  return (
+                    <div key={d.questionIndex} className="p-3 border rounded">
+                      <div className="font-semibold">{d.questionText || `Câu ${d.questionIndex + 1}`}</div>
+                      <div className="text-sm mt-2">
+                        {q && Array.isArray(q.choices) && q.choices.length > 0 ? (
+                          (() => {
+                            const correctIndex = q.choices.findIndex((c) => String(c.text).trim() === String(d.expectedAnswer).trim());
+                            const selectedIndex = getSelectedIndex(studentAnsRaw, q);
+                            const studentIsCorrect = selectedIndex >= 0 && selectedIndex === correctIndex;
+                            return (
+                              <>
+                                <ul className="space-y-2 mt-2">
+                                  {q.choices.map((ch, ci) => {
+                                    const isCorrect = ci === correctIndex;
+                                    const isSelected = ci === selectedIndex;
+                                    const letter = String.fromCodePoint(65 + ci);
+                                    let circleClass = 'bg-gray-100 text-gray-600';
+                                    let choiceBg = '';
+                                    if (studentIsCorrect) {
+                                      if (isSelected) {
+                                        circleClass = 'bg-green-100 text-green-800';
+                                        choiceBg = 'bg-green-50';
+                                      }
+                                    } else if (isCorrect) {
+                                      circleClass = 'bg-green-100 text-green-800';
+                                      choiceBg = 'bg-green-50';
+                                    } else if (isSelected) {
+                                      circleClass = 'bg-red-100 text-red-800';
+                                      choiceBg = 'bg-red-50';
+                                    }
+                                    return (
+                                      <li key={ci} className={`flex items-start gap-3 py-1 px-2 rounded ${choiceBg}`}>
+                                        <div className={`w-8 h-8 flex items-center justify-center rounded-full text-sm font-semibold ${circleClass}`}>
+                                          {letter}
+                                        </div>
+                                        <div className={isSelected ? 'font-semibold' : ''}>{ch.text}</div>
+                                      </li>
+                                    );
+                                  })}
+                                </ul>
+                                {!studentIsCorrect && correctIndex >= 0 && (
+                                  <div className="text-sm text-green-700 font-medium mt-2">Đáp án đúng: {String.fromCodePoint(65 + correctIndex)}</div>
+                                )}
+                              </>
+                            );
+                          })()
+                        ) : (
+                          (() => {
+                            const isCorrect = Boolean(d.correct);
+                            return (
+                              <div>
+                                <div>
+                                  <span className="font-medium">Nộp:</span>{' '}
+                                  <span className={isCorrect ? 'text-green-700' : 'text-red-600'}>{d.studentAnswer ?? '—'}</span>
+                                </div>
+                                {!isCorrect && (
+                                  <div className="text-sm text-green-700 font-medium mt-1">Đáp án đúng: {d.expectedAnswer ?? '—'}</div>
+                                )}
+                              </div>
+                            );
+                          })()
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           {showStudentForm && (
             <div className="card">
               <h2 className="text-xl font-bold text-gray-800 mb-4">Nộp bài</h2>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <textarea
-                  className="input-field min-h-[160px] resize-y"
-                  placeholder="Viết bài làm của bạn (tuỳ chọn nếu đã đính kèm file)..."
-                  value={submitContent}
-                  onChange={(e) => setSubmitContent(e.target.value)}
-                  disabled={submitting}
-                />
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Đính kèm file</label>
-                  <input
-                    type="file"
-                    multiple
-                    className="input-field text-sm"
-                    onChange={(e) =>
-                      setStudentFiles(e.target.files ? Array.from(e.target.files) : [])
-                    }
+              {assignment?.questions && Array.isArray(assignment.questions) && assignment.questions.length > 0 ? (
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div className="space-y-4">
+                    {assignment.questions.map((q, i) => (
+                      <div key={i} className="p-3 border rounded">
+                        <div className="font-semibold">{q.text || `Câu ${i + 1}`}</div>
+                        {q.type === 'fill' ? (
+                          <input type="text" className="input-field mt-2" value={answers[i] ?? ''} onChange={(e)=>setAnswers({...answers,[i]:e.target.value})} />
+                        ) : (
+                          <div className="mt-2 space-y-2">
+                            {(q.choices||[]).map((ch, ci) => (
+                              <label key={ci} className="flex items-center gap-2">
+                                <input type="radio" name={`q-${i}`} checked={answers[i]===ci} onChange={()=>setAnswers({...answers,[i]:ci})} />
+                                <span>{ch.text || `Lựa chọn ${ci+1}`}</span>
+                              </label>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                  <button type="submit" className="btn-primary" disabled={submitting}>{submitting ? 'Đang gửi...' : 'Nộp bài'}</button>
+                </form>
+              ) : (
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <textarea
+                    className="input-field min-h-[160px] resize-y"
+                    placeholder="Viết bài làm của bạn (tuỳ chọn nếu đã đính kèm file)..."
+                    value={submitContent}
+                    onChange={(e) => setSubmitContent(e.target.value)}
                     disabled={submitting}
                   />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Tối đa 10MB mỗi file. Cần có nội dung hoặc ít nhất một file.
-                  </p>
-                  {studentFiles.length > 0 && (
-                    <ul className="text-xs text-gray-600 mt-2 list-disc list-inside">
-                      {studentFiles.map((f) => (
-                        <li key={f.name + f.size}>{f.name}</li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-                <button type="submit" className="btn-primary" disabled={submitting}>
-                  {submitting ? 'Đang gửi...' : 'Nộp bài'}
-                </button>
-              </form>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Đính kèm file</label>
+                    <input
+                      type="file"
+                      multiple
+                      className="input-field text-sm"
+                      onChange={(e) =>
+                        setStudentFiles(e.target.files ? Array.from(e.target.files) : [])
+                      }
+                      disabled={submitting}
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Tối đa 10MB mỗi file. Cần có nội dung hoặc ít nhất một file.
+                    </p>
+                    {studentFiles.length > 0 && (
+                      <ul className="text-xs text-gray-600 mt-2 list-disc list-inside">
+                        {studentFiles.map((f) => (
+                          <li key={f.name + f.size}>{f.name}</li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                  <button type="submit" className="btn-primary" disabled={submitting}>
+                    {submitting ? 'Đang gửi...' : 'Nộp bài'}
+                  </button>
+                </form>
+              )}
             </div>
           )}
 
@@ -492,6 +662,90 @@ export default function AssignmentDetailPage() {
               </button>
               <button type="button" className="btn-primary" disabled={saving} onClick={handleUpdate}>
                 {saving ? 'Đang lưu...' : 'Lưu'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {showDetailsModal && modalSubmission && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-6 max-w-2xl w-full shadow-2xl">
+            <h3 className="text-xl font-bold mb-4">Chi tiết bài nộp - Người dùng {modalSubmission.userId}</h3>
+            <div className="space-y-3 max-h-[60vh] overflow-y-auto">
+              {modalSubmission.details.map((d) => {
+                const q = assignment?.questions?.[d.questionIndex];
+                const studentAnsRaw = d.studentAnswer;
+                const selectedIndex = getSelectedIndex(studentAnsRaw, q);
+                const correctIndex = q && Array.isArray(q.choices) ? q.choices.findIndex((c) => String(c.text).trim() === String(d.expectedAnswer).trim()) : -1;
+                const studentIsCorrect = selectedIndex >= 0 && selectedIndex === correctIndex;
+                return (
+                  <div key={d.questionIndex} className="p-3 border rounded">
+                    <div className="font-semibold">{d.questionText || `Câu ${d.questionIndex + 1}`}</div>
+                    <div className="text-sm mt-2">
+                      {q && Array.isArray(q.choices) && q.choices.length > 0 ? (
+                        <>
+                        <ul className="space-y-2 mt-2">
+                          {q.choices.map((ch, ci) => {
+                            const isCorrect = ci === correctIndex;
+                            const isSelected = ci === selectedIndex;
+                            const letter = String.fromCodePoint(65 + ci);
+                            let circleClass = 'bg-gray-100 text-gray-600';
+                            let choiceBg = '';
+                            const studentIsCorrect = selectedIndex >= 0 && selectedIndex === correctIndex;
+                            if (studentIsCorrect) {
+                              if (isSelected) {
+                                circleClass = 'bg-green-100 text-green-800';
+                                choiceBg = 'bg-green-50';
+                              }
+                            } else if (isCorrect) {
+                              circleClass = 'bg-green-100 text-green-800';
+                              choiceBg = 'bg-green-50';
+                            } else if (isSelected) {
+                              circleClass = 'bg-red-100 text-red-800';
+                              choiceBg = 'bg-red-50';
+                            }
+                            return (
+                              <li key={ci} className={`flex items-start gap-3 py-1 px-2 rounded ${choiceBg}`}>
+                                <div className={`w-8 h-8 flex items-center justify-center rounded-full text-sm font-semibold ${circleClass}`}>
+                                  {letter}
+                                </div>
+                                <div className={isSelected ? 'font-semibold' : ''}>{ch.text}</div>
+                              </li>
+                            );
+                          })}
+                        </ul>
+                        {console.debug && console.debug('modalDetail', d.questionIndex, 'studentAns', d.studentAnswer, 'selectedIndex', selectedIndex, 'correctIndex', correctIndex)}
+                        </>
+                      ) : (
+                        <div>
+                          <div>
+                            <span className="font-medium">Nộp:</span>{' '}
+                            <span className={d.correct ? 'text-green-700' : 'text-red-600'}>{d.studentAnswer ?? '—'}</span>
+                          </div>
+                          <div>
+                            <span className="font-medium">Đáp án:</span> {d.expectedAnswer ?? '—'}
+                          </div>
+                        </div>
+                      )}
+                      <div className="mt-2">
+                        {q && Array.isArray(q.choices) && q.choices.length > 0 && !studentIsCorrect && (
+                          (() => {
+                            const correctLetter = correctIndex >= 0 ? String.fromCodePoint(65 + correctIndex) : null;
+                            return correctLetter ? (
+                              <div className="text-sm text-green-700 font-medium">Đáp án đúng: {correctLetter}</div>
+                            ) : null;
+                          })()
+                        )}
+                        <div className="text-xs text-gray-500 mt-1">Câu #{d.questionIndex + 1}</div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="flex justify-end mt-4">
+              <button type="button" className="btn-secondary mr-2" onClick={() => { setShowDetailsModal(false); setModalSubmission(null); }}>
+                Đóng
               </button>
             </div>
           </div>
