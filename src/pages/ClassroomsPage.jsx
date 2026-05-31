@@ -15,6 +15,7 @@ export default function ClassroomsPage() {
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [joinId, setJoinId] = useState('');
   const [joining, setJoining] = useState(false);
+  const [joinMessage, setJoinMessage] = useState('');
   const [formData, setFormData] = useState({ name: '', description: '' });
 
   const fetchList = async () => {
@@ -89,9 +90,10 @@ export default function ClassroomsPage() {
     }
     try {
       setJoining(true);
-      await classAPI.join(id);
+      const res = await classAPI.join(id);
+      // do not auto-enter — wait for owner approval
+      setJoinMessage(res?.data?.message || 'Yêu cầu tham gia đã được gửi. Vui lòng chờ duyệt.');
       setJoinId('');
-      await fetchList();
     } catch (err) {
       alert(err.response?.data?.message || err.message);
     } finally {
@@ -163,6 +165,11 @@ export default function ClassroomsPage() {
                 {joining ? 'Đang tham gia...' : 'Tham gia'}
               </button>
             </form>
+            {joinMessage && (
+              <div className="mt-4 p-3 rounded-lg bg-amber-50 border-amber-200 text-amber-800 text-sm">
+                {joinMessage}
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
