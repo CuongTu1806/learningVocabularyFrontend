@@ -1,133 +1,151 @@
-# learningVocabularyFrontend
+# Learning Vocabulary Platform — Frontend
 
-Frontend for the vocabulary learning platform, built with React + Vite.
+Giao diện web cho nền tảng học từ vựng: dashboard, bài học, quiz, ôn Spaced Repetition, profile thống kê, lớp học và contest.
 
-## 1. Requirements
+> **Backend (Spring Boot API):** [learningVocabularyPlatform](https://github.com/CuongTu1806/learningVocabularyPlatform)  
+> Repo này chỉ chứa **frontend**. API, database và media server nằm ở repo backend.
 
-- Node.js 18+ (recommended: latest LTS)
-- npm 9+
-- Git
+---
 
-Check installed versions:
+## Tính năng (UI)
 
-```bash
-node -v
-npm -v
-git --version
-```
+- Đăng nhập / đăng ký (JWT)
+- **Dashboard**: tìm từ vựng (gợi ý + popup audio/ảnh), bảng xếp hạng
+- **Bài học**: thư viện bài, chi tiết từ, thêm từ từ từ điển hệ thống
+- **Quiz**: nhiều chế độ, lịch sử và chi tiết kết quả
+- **Ôn tập**: Spaced Repetition, flashcard, cài đặt ôn
+- **Hồ sơ**: thống kê (reviews, thời gian, phân loại thẻ, ease, khoảng ôn, từ mới)
+- **Lớp học**, **bài tập**, **contest**
 
-## 2. Clone Repository
+---
+
+## Tech stack
+
+- **React 19** + **Vite 8**
+- **React Router 6**
+- **Axios**
+- **Tailwind CSS 4**
+- **Recharts**
+
+---
+
+## Yêu cầu
+
+- **Node.js 18+** (khuyến nghị LTS)
+- **npm 9+**
+- Backend chạy tại `http://localhost:8080` (hoặc URL trong `.env`)
+
+---
+
+## Cài đặt & chạy
+
+### 1. Clone & cài dependency
 
 ```bash
 git clone https://github.com/CuongTu1806/learningVocabularyFrontend.git
 cd learningVocabularyFrontend
-```
-
-## 3. Install Dependencies
-
-```bash
 npm install
 ```
 
-## 4. Environment Configuration (`.env`)
+### 2. Cấu hình môi trường (tuỳ chọn)
 
-This project uses Axios config:
+Mặc định dev dùng proxy Vite: mọi request `/api` → `http://localhost:8080`. **Không cần `.env`** nếu backend chạy local cổng 8080.
 
-- `VITE_API_BASE_URL` if provided
-- fallback to `/api` if not provided
-
-And Vite dev server is configured to proxy `/api` to `http://localhost:8080`.
-
-### Case A: Backend runs locally at `http://localhost:8080`
-
-No `.env` file is required. You can run immediately.
-
-### Case B: Backend runs on another URL
-
-Create `.env` at project root:
+Nếu backend ở URL khác, tạo `.env`:
 
 ```env
-VITE_API_BASE_URL=http://your-backend-host:your-port/api
+VITE_API_BASE_URL=http://your-host:8080/api
+VITE_MEDIA_BASE_URL=http://your-host:8080
 ```
 
-Example:
+`VITE_MEDIA_BASE_URL`: base URL phát audio/ảnh (`/mediaFull/...`).
 
-```env
-VITE_API_BASE_URL=https://api.yourdomain.com/api
-```
-
-Important:
-
-- Do not commit secrets.
-- `.env` is already ignored by `.gitignore`.
-
-## 5. Run In Development
+### 3. Chạy dev
 
 ```bash
 npm run dev
 ```
 
-After running, open the local URL shown in terminal (usually `http://localhost:5173`).
+Mở **http://localhost:5173** (hoặc cổng Vite in ra terminal).
 
-## 6. Available Scripts
-
-- `npm run dev`: start development server
-- `npm run build`: build production files
-- `npm run preview`: preview production build locally
-- `npm run lint`: run ESLint
-
-## 7. Build And Preview Production
+### 4. Build production
 
 ```bash
 npm run build
 npm run preview
 ```
 
-## 8. Quick Start (For Teammates)
+---
 
-If backend is already running on port `8080`, use only:
+## Chạy full stack (với Backend)
 
 ```bash
-git clone https://github.com/CuongTu1806/learningVocabularyFrontend.git
-cd learningVocabularyFrontend
-npm install
+# Terminal 1 — backend
+git clone https://github.com/CuongTu1806/learningVocabularyPlatform.git
+cd learningVocabularyPlatform
+# cấu hình MySQL, rồi:
+mvn spring-boot:run
+
+# Terminal 2 — frontend (repo này)
 npm run dev
 ```
 
-## 9. Common Issues
+Chi tiết cấu hình DB, JWT, media: xem README backend.
 
-### API calls fail or login does not work
+---
 
-- Ensure backend is running.
-- Ensure backend URL is correct in `.env` (if used).
-- If no `.env`, ensure backend is reachable at `http://localhost:8080`.
+## Scripts
 
-### Port `5173` is occupied
+| Lệnh | Mô tả |
+|------|--------|
+| `npm run dev` | Dev server + HMR |
+| `npm run build` | Build `dist/` |
+| `npm run preview` | Xem bản build local |
+| `npm run lint` | ESLint |
 
-- Stop the process using that port, or run Vite on another port:
+---
+
+## Cấu trúc (rút gọn)
+
+```
+src/
+  pages/          # Màn hình (Dashboard, Lessons, Quiz, Profile, …)
+  components/     # Layout, Header, biểu đồ profile
+  contexts/       # AuthContext
+  services/       # Gọi API (axios)
+```
+
+---
+
+## Sự cố thường gặp
+
+**API / đăng nhập lỗi**
+
+- Kiểm tra backend đã chạy (`http://localhost:8080`).
+- Kiểm tra `VITE_API_BASE_URL` nếu dùng `.env`.
+
+**Audio/ảnh không load**
+
+- Đặt `VITE_MEDIA_BASE_URL=http://localhost:8080`.
+- Đảm bảo backend map đúng thư mục `mediaFull` (`app.media.root`).
+
+**Cổng 5173 bận**
 
 ```bash
 npm run dev -- --port 5174
 ```
 
-### `npm install` fails
+---
 
-- Delete `node_modules` and `package-lock.json`, then reinstall:
+## Liên kết
 
-```bash
-rm -rf node_modules package-lock.json
-npm install
-```
+| Thành phần | Repository |
+|------------|------------|
+| **Frontend (repo này)** | https://github.com/CuongTu1806/learningVocabularyFrontend |
+| **Backend** | https://github.com/CuongTu1806/learningVocabularyPlatform |
 
-On Windows PowerShell:
+---
 
-```powershell
-Remove-Item -Recurse -Force node_modules
-Remove-Item -Force package-lock.json
-npm install
-```
+## License
 
-## 10. Notes
-
-- Commit source/config files only.
-- Do not commit `.env`, `node_modules`, or build output (`dist`).
+Dự án học tập / đồ án — tuỳ chỉnh license khi public repo.
