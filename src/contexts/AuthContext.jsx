@@ -30,6 +30,7 @@ export function AuthProvider({ children }) {
             userId: response.data?.userId,
             username: response.data?.username,
             email: response.data?.email,
+            role: response.data?.role,
             tokenType: response.data?.tokenType,
           });
         })
@@ -60,6 +61,7 @@ export function AuthProvider({ children }) {
       userId: data.userId,
       username: data.username,
       email: data.email,
+      role: data.role,
     });
   };
 

@@ -180,7 +180,7 @@ export default function ContestCreatePage() {
 
   return (
     <Layout>
-      {!(user?.role === 'teacher' || user?.role === 'admin') ? (
+      {!(user?.role?.toLowerCase() === 'teacher' || user?.role?.toLowerCase() === 'admin') ? (
         <div className="max-w-3xl mx-auto px-6 py-20">
           <div className="card bg-amber-50 border-amber-200 p-6 text-amber-800">
             <p className="font-semibold">Bạn không có quyền tạo cuộc thi. Chỉ giáo viên hoặc admin được phép.</p>
