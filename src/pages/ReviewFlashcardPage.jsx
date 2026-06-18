@@ -265,8 +265,10 @@ export default function ReviewFlashcardPage() {
   if (loading)
     return (
       <Layout>
-        <div className="bg-gradient-to-br from-slate-50 to-slate-100 py-12 flex items-center justify-center min-h-screen">
-          <div className="text-3xl font-bold text-gray-600">⏳ Đang tải flashcard...</div>
+        <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-12">
+          <div className="rounded-2xl border border-slate-200 bg-white px-6 py-4 text-slate-600 shadow-sm">
+            Đang tải flashcard...
+          </div>
         </div>
       </Layout>
     );
@@ -274,8 +276,10 @@ export default function ReviewFlashcardPage() {
   if (error)
     return (
       <Layout>
-        <div className="bg-gradient-to-br from-slate-50 to-slate-100 py-12 flex items-center justify-center min-h-screen">
-          <div className="text-xl text-red-600 font-semibold">{error}</div>
+        <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-12">
+          <div className="rounded-2xl border border-red-200 bg-red-50 px-6 py-4 text-red-600 font-semibold shadow-sm">
+            {error}
+          </div>
         </div>
       </Layout>
     );
@@ -283,9 +287,9 @@ export default function ReviewFlashcardPage() {
   if (cards.length === 0)
     return (
       <Layout>
-        <div className="bg-gradient-to-br from-slate-50 to-slate-100 py-12 flex items-center justify-center min-h-screen">
+        <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-12">
           <div className="card max-w-md text-center">
-            <div className="text-6xl mb-4">🎉</div>
+            <div className="mx-auto mb-4 h-14 w-14 rounded-2xl border border-emerald-200 bg-emerald-50" />
             <h2 className="text-2xl font-bold mb-4">Hoàn tất!</h2>
             <p className="text-gray-600 mb-6">Không có flashcard nào cần ôn tập hôm nay</p>
             <button
@@ -316,35 +320,35 @@ export default function ReviewFlashcardPage() {
 
   return (
     <Layout>
-      <div className="bg-gradient-to-br from-slate-50 to-slate-100 py-12 min-h-screen">
-        <div className="max-w-3xl w-full mx-auto px-6">
-        <div className="mb-8 grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="card bg-gradient-to-br from-sky-50 to-sky-100 border-l-4 border-l-sky-400">
-            <p className="text-gray-600 font-medium">Learning</p>
-            <p className="text-4xl font-bold text-sky-600 mt-1">{stateCounts.learning}</p>
+      <div className="min-h-screen bg-slate-50 py-12">
+        <div className="mx-auto w-full max-w-3xl px-4 md:px-6">
+          <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-3">
+            <div className="card border-slate-200 bg-white">
+              <p className="font-medium text-slate-500">Learning</p>
+              <p className="mt-1 text-4xl font-semibold text-slate-900">{stateCounts.learning}</p>
+            </div>
+            <div className="card border-slate-200 bg-white">
+              <p className="font-medium text-slate-500">Relearning</p>
+              <p className="mt-1 text-4xl font-semibold text-slate-900">{stateCounts.relearning}</p>
+            </div>
+            <div className="card border-slate-200 bg-white">
+              <p className="font-medium text-slate-500">Review</p>
+              <p className="mt-1 text-4xl font-semibold text-slate-900">{stateCounts.review}</p>
+            </div>
           </div>
-          <div className="card bg-gradient-to-br from-red-50 to-red-100 border-l-4 border-l-red-500">
-            <p className="text-gray-600 font-medium">Relearning</p>
-            <p className="text-4xl font-bold text-red-600 mt-1">{stateCounts.relearning}</p>
-          </div>
-          <div className="card bg-gradient-to-br from-green-50 to-green-100 border-l-4 border-l-green-500">
-            <p className="text-gray-600 font-medium">Review</p>
-            <p className="text-4xl font-bold text-green-600 mt-1">{stateCounts.review}</p>
-          </div>
-        </div>
 
-        <div className="mb-12">
-          <div className="card min-h-96 flex flex-col items-center justify-center p-8">
+          <div className="mb-12">
+            <div className="card min-h-96 flex flex-col items-center justify-center p-8 border-slate-200 bg-white">
             {showAnswer ? (
               <div className="w-full max-w-3xl">
-                <p className="text-gray-500 text-sm mb-6 text-center">Mặt sau</p>
+                <p className="mb-6 text-center text-sm text-slate-500">Mặt sau</p>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                  <div className="rounded-2xl border border-blue-100 bg-blue-50 p-5">
-                    <p className="text-sm font-semibold text-blue-700 mb-2">Mặt trước</p>
-                    <p className="text-3xl font-bold text-blue-700 break-words">{currentCard.meaning}</p>
+                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+                    <p className="mb-2 text-sm font-semibold text-slate-700">Mặt trước</p>
+                    <p className="break-words text-3xl font-semibold text-slate-900">{currentCard.meaning}</p>
                   </div>
                   <div className="rounded-2xl border border-slate-200 bg-white p-5">
-                    <p className="text-sm font-semibold text-slate-600 mb-2">Đáp án bạn vừa viết</p>
+                    <p className="mb-2 text-sm font-semibold text-slate-600">Đáp án bạn vừa viết</p>
                     <p className={`text-xl font-semibold break-words ${userAnswer.trim() ? 'text-slate-800' : 'text-slate-400'}`}>
                       {userAnswer.trim() || 'Chưa nhập đáp án'}
                     </p>
@@ -352,8 +356,8 @@ export default function ReviewFlashcardPage() {
                 </div>
 
                 <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-5 mb-8 text-center">
-                  <p className="text-sm font-semibold text-emerald-700 mb-2">Đáp án mặt sau</p>
-                  <p className="text-4xl font-bold text-emerald-700 break-words">{currentCard.word}</p>
+                  <p className="mb-2 text-sm font-semibold text-emerald-700">Đáp án mặt sau</p>
+                  <p className="break-words text-4xl font-semibold text-emerald-700">{currentCard.word}</p>
                 </div>
 
                 <div className="mb-6 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-center">
@@ -410,17 +414,16 @@ export default function ReviewFlashcardPage() {
             )}
           </div>
         </div>
-
-        <div className="mt-8 text-center">
+          <div className="mt-8 text-center">
           <button
             onClick={() => (globalThis.location.href = '/spaced-repetition')}
             className="text-gray-600 hover:text-gray-900 font-semibold"
           >
             ← Quay lại Spaced Repetition
           </button>
+          </div>
         </div>
       </div>
-    </div>
     </Layout>
   );
 }

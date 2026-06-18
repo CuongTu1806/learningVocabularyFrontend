@@ -190,27 +190,27 @@ export default function ContestCreatePage() {
           </div>
         </div>
       ) : (
-      <div className="bg-gradient-to-br from-slate-50 to-indigo-50 py-12 min-h-screen">
-        <div className="max-w-3xl mx-auto px-6">
+      <div className="min-h-screen bg-slate-50 py-12">
+        <div className="mx-auto max-w-3xl px-6">
           <button
             type="button"
             onClick={() => navigate('/contests')}
-            className="text-indigo-600 font-semibold hover:text-indigo-800 mb-6"
+            className="mb-6 font-semibold text-slate-900 underline-offset-4 hover:underline"
           >
             ← Danh sách cuộc thi
           </button>
 
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Tạo cuộc thi mới</h1>
-          <p className="text-gray-600 mb-8">
+          <h1 className="mb-2 text-3xl font-semibold tracking-tight text-slate-900">Tạo cuộc thi mới</h1>
+          <p className="mb-8 text-slate-600">
             Điền thông tin cuộc thi và các câu hỏi. Ảnh minh họa: upload file (khuyến nghị) hoặc dán URL
             ngoài.
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-8">
             <div className="card space-y-4">
-              <h2 className="text-lg font-bold text-gray-800">Thông tin chung</h2>
+              <h2 className="text-lg font-semibold text-slate-900">Thông tin chung</h2>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Tiêu đề *</label>
+                <label className="mb-1 block text-sm font-semibold text-slate-700">Tiêu đề *</label>
                 <input
                   className="input-field"
                   value={title}
@@ -219,7 +219,7 @@ export default function ContestCreatePage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Mô tả</label>
+                <label className="mb-1 block text-sm font-semibold text-slate-700">Mô tả</label>
                 <textarea
                   className="input-field h-24 resize-y"
                   value={description}
@@ -229,7 +229,7 @@ export default function ContestCreatePage() {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Bắt đầu *</label>
+                  <label className="mb-1 block text-sm font-semibold text-slate-700">Bắt đầu *</label>
                   <input
                     type="datetime-local"
                     className="input-field"
@@ -238,7 +238,7 @@ export default function ContestCreatePage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Kết thúc *</label>
+                  <label className="mb-1 block text-sm font-semibold text-slate-700">Kết thúc *</label>
                   <input
                     type="datetime-local"
                     className="input-field"
@@ -248,7 +248,7 @@ export default function ContestCreatePage() {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Hiển thị</label>
+                <label className="mb-1 block text-sm font-semibold text-slate-700">Hiển thị</label>
                 <select
                   className="input-field"
                   value={visibility}
@@ -261,13 +261,13 @@ export default function ContestCreatePage() {
             </div>
 
             {problems.map((p, index) => (
-              <div key={index} className="card border-indigo-100 bg-white/80 space-y-3">
+              <div key={index} className="card space-y-3 border-slate-200 bg-white">
                 <div className="flex justify-between items-center gap-2">
-                  <h2 className="text-lg font-bold text-indigo-900">Câu {index + 1}</h2>
+                  <h2 className="text-lg font-semibold text-slate-900">Câu {index + 1}</h2>
                   {problems.length > 1 && (
                     <button
                       type="button"
-                      className="text-sm text-red-600 hover:underline"
+                      className="text-sm text-red-600 underline-offset-4 hover:underline"
                       onClick={() => removeProblem(index)}
                     >
                       Xóa câu
@@ -275,7 +275,7 @@ export default function ContestCreatePage() {
                   )}
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Tiêu đề câu *</label>
+                  <label className="mb-1 block text-sm font-semibold text-slate-700">Tiêu đề câu *</label>
                   <input
                     className="input-field"
                     value={p.title}
@@ -284,7 +284,7 @@ export default function ContestCreatePage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Mô tả / gợi ý</label>
+                  <label className="mb-1 block text-sm font-semibold text-slate-700">Mô tả / gợi ý</label>
                   <textarea
                     className="input-field h-20 resize-y"
                     value={p.description}
@@ -293,7 +293,7 @@ export default function ContestCreatePage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  <label className="mb-1 block text-sm font-semibold text-slate-700">
                     Ảnh minh họa (tuỳ chọn)
                   </label>
                   <input
@@ -304,13 +304,13 @@ export default function ContestCreatePage() {
                     onChange={(e) => setProblemImageFile(index, e.target.files?.[0] || null)}
                   />
                   {p.imageFile && (
-                    <div className="flex flex-wrap items-center gap-2 text-xs text-gray-600">
+                    <div className="flex flex-wrap items-center gap-2 text-xs text-slate-600">
                       <span>
                         Đã chọn: {p.imageFile.name} — upload sau khi tạo cuộc thi.
                       </span>
                       <button
                         type="button"
-                        className="text-indigo-600 hover:underline"
+                        className="text-slate-900 underline-offset-4 hover:underline"
                         onClick={() => setProblemImageFile(index, null)}
                       >
                         Bỏ chọn ảnh
@@ -318,7 +318,7 @@ export default function ContestCreatePage() {
                     </div>
                   )}
                   <div>
-                    <label className="block text-xs font-medium text-gray-500 mb-1">
+                    <label className="mb-1 block text-xs font-medium text-slate-500">
                       Hoặc URL ảnh (khi không chọn file)
                     </label>
                     <input
@@ -332,7 +332,7 @@ export default function ContestCreatePage() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1">Đáp án đúng *</label>
+                    <label className="mb-1 block text-sm font-semibold text-slate-700">Đáp án đúng *</label>
                     <input
                       className="input-field"
                       value={p.answer}
@@ -342,7 +342,7 @@ export default function ContestCreatePage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1">Điểm tối đa *</label>
+                    <label className="mb-1 block text-sm font-semibold text-slate-700">Điểm tối đa *</label>
                     <input
                       type="number"
                       min={1}
@@ -354,7 +354,7 @@ export default function ContestCreatePage() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1">Độ khó</label>
+                    <label className="mb-1 block text-sm font-semibold text-slate-700">Độ khó</label>
                     <input
                       className="input-field"
                       value={p.difficulty}
@@ -363,7 +363,7 @@ export default function ContestCreatePage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1">
+                    <label className="mb-1 block text-sm font-semibold text-slate-700">
                       Đáp án nhiễu
                     </label>
                     <input

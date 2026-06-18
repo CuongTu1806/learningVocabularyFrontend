@@ -5,66 +5,66 @@ export default function PersonalInfo({ profile = {} }) {
   return (
     <>
       {/* Header - Personal Info */}
-      <div className="card mb-8 bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
-        <div className="flex items-center gap-6">
-          <div className="w-24 h-24 bg-gradient-to-br from-blue-400 to-purple-600 rounded-full flex items-center justify-center text-5xl font-bold text-white">
+      <div className="card mb-8">
+        <div className="flex flex-col gap-6 md:flex-row md:items-center">
+          <div className="flex h-24 w-24 items-center justify-center rounded-2xl bg-slate-900 text-4xl font-semibold text-white">
             {profile?.username?.charAt(0).toUpperCase() || 'U'}
           </div>
           <div className="flex-grow">
-            <h1 className="text-3xl font-bold text-gray-800">{profile?.username || 'User'}</h1>
-            <p className="text-gray-600 mt-1">{profile?.email || 'email@example.com'}</p>
-            <p className="text-gray-600 mt-1">Thành viên từ: {profile?.createdAt || '15/02/2024'}</p>
+            <h1 className="text-3xl font-semibold tracking-tight text-slate-900">{profile?.username || 'User'}</h1>
+            <p className="mt-1 text-slate-500">{profile?.email || 'email@example.com'}</p>
+            <p className="mt-1 text-slate-500">Thành viên từ: {profile?.createdAt || '15/02/2024'}</p>
           </div>
         </div>
       </div>
 
       {/* Ranking & Activity Info */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-        <div className="card bg-gradient-to-br from-yellow-50 to-yellow-100 border-yellow-200">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 mb-8">
+        <div className="card bg-amber-50/70">
           <div className="text-center">
-            <p className="text-gray-600 text-sm">🏆 Rank hiện tại</p>
-            <p className="text-3xl font-bold text-yellow-600 mt-3">{profile?.currentRank ?? 'Chưa xếp hạng'}</p>
-            <p className="text-xs text-gray-600 mt-2">Thành viên hoạt động</p>
+            <p className="text-sm text-slate-500">Rank hiện tại</p>
+            <p className="mt-3 text-3xl font-semibold text-slate-900">{profile?.currentRank ?? 'Chưa xếp hạng'}</p>
+            <p className="mt-2 text-xs text-slate-500">Thành viên hoạt động</p>
           </div>
         </div>
 
-        <div className="card bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
+        <div className="card bg-violet-50/70">
           <div className="text-center">
-            <p className="text-gray-600 text-sm">⭐ Điểm hiện tại</p>
-            <p className="text-3xl font-bold text-purple-600 mt-3">{(profile?.currentRankPoints ?? 0).toLocaleString()}</p>
-            <p className="text-xs text-gray-600 mt-2">Điểm xếp hạng</p>
+            <p className="text-sm text-slate-500">Điểm hiện tại</p>
+            <p className="mt-3 text-3xl font-semibold text-slate-900">{(profile?.currentRankPoints ?? 0).toLocaleString()}</p>
+            <p className="mt-2 text-xs text-slate-500">Điểm xếp hạng</p>
           </div>
         </div>
 
-        <div className="card bg-gradient-to-br from-pink-50 to-pink-100 border-pink-200">
+        <div className="card bg-rose-50/70">
           <div className="text-center">
-            <p className="text-gray-600 text-sm">🔥 Streak</p>
-            <p className="text-3xl font-bold text-pink-600 mt-3">{profile?.currentStreak ?? 0}</p>
-            <p className="text-xs text-gray-600 mt-2">Ngày liên tiếp</p>
+            <p className="text-sm text-slate-500">Streak</p>
+            <p className="mt-3 text-3xl font-semibold text-slate-900">{profile?.currentStreak ?? 0}</p>
+            <p className="mt-2 text-xs text-slate-500">Ngày liên tiếp</p>
           </div>
         </div>
 
-        <div className="card bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
+        <div className="card bg-sky-50/70">
           <div className="text-center">
-            <p className="text-gray-600 text-sm">🥇 Điểm cao nhất</p>
-            <p className="text-3xl font-bold text-blue-600 mt-3">{(profile?.maxRating ?? profile?.maxRankPoints ?? 0).toLocaleString()}</p>
-            <p className="text-xs text-gray-600 mt-2">Đạt được</p>
+            <p className="text-sm text-slate-500">Điểm cao nhất</p>
+            <p className="mt-3 text-3xl font-semibold text-slate-900">{(profile?.maxRating ?? profile?.maxRankPoints ?? 0).toLocaleString()}</p>
+            <p className="mt-2 text-xs text-slate-500">Đạt được</p>
           </div>
         </div>
 
-        <div className="card bg-gradient-to-br from-green-50 to-green-100 border-green-200">
+        <div className="card bg-emerald-50/70">
           <div className="text-center">
-            <p className="text-gray-600 text-sm">🎯 Contests</p>
-            <p className="text-3xl font-bold text-green-600 mt-3">{profile?.contestsParticipated ?? 0}</p>
-            <p className="text-xs text-gray-600 mt-2">Đã tham gia</p>
+            <p className="text-sm text-slate-500">Contests</p>
+            <p className="mt-3 text-3xl font-semibold text-slate-900">{profile?.contestsParticipated ?? 0}</p>
+            <p className="mt-2 text-xs text-slate-500">Đã tham gia</p>
           </div>
         </div>
 
-        <div className="card bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
+        <div className="card bg-orange-50/70">
           <div className="text-center">
-            <p className="text-gray-600 text-sm">📅 Online tháng này</p>
-            <p className="text-3xl font-bold text-orange-600 mt-3">{profile?.daysOnlineThisMonth ?? 0}</p>
-            <p className="text-xs text-gray-600 mt-2">Ngày hoạt động</p>
+            <p className="text-sm text-slate-500">Online tháng này</p>
+            <p className="mt-3 text-3xl font-semibold text-slate-900">{profile?.daysOnlineThisMonth ?? 0}</p>
+            <p className="mt-2 text-xs text-slate-500">Ngày hoạt động</p>
           </div>
         </div>
       </div>

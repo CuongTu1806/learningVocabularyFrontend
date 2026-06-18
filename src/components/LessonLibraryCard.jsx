@@ -28,22 +28,21 @@ export default function LessonLibraryCard({ lesson, onStudy, onEdit, onDelete, o
 
   return (
     <article
-      className="group overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1)] transition-all duration-300 hover:-translate-y-[5px] hover:shadow-[0_18px_35px_-15px_rgba(15,23,42,0.35)]"
+      className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(15,23,42,0.06)]"
     >
-      <div className="relative h-36 overflow-hidden bg-gradient-to-br from-cyan-300 via-blue-400 to-fuchsia-500">
-        <div className="absolute -left-10 -top-8 h-24 w-24 rounded-full bg-white/35 blur-md" />
-        <div className="absolute right-3 top-4 h-16 w-16 rounded-full bg-emerald-200/60 blur-sm" />
-        <div className="absolute -bottom-8 right-14 h-28 w-28 rounded-full bg-indigo-300/50 blur-md" />
+      <div className="relative h-32 overflow-hidden border-b border-slate-200 bg-[radial-gradient(circle_at_top_left,_rgba(15,23,42,0.06),_transparent_40%),linear-gradient(180deg,rgba(255,255,255,0.8),rgba(248,250,252,1))]">
+        <div className="absolute left-4 top-4 h-10 w-10 rounded-2xl bg-slate-200/80" />
+        <div className="absolute right-5 top-5 h-14 w-14 rounded-2xl bg-slate-100" />
       </div>
 
       <div className="p-5">
         <div className="mb-5">
-          <h3 className="line-clamp-2 text-[18px] font-bold leading-6 text-slate-900">{title}</h3>
-          <p className="mt-2 text-sm text-slate-500">{wordsCount} words</p>
+          <h3 className="line-clamp-2 text-[18px] font-semibold leading-6 text-slate-900">{title}</h3>
+          <p className="mt-2 text-sm text-slate-500">{wordsCount} từ</p>
           <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
-            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-slate-700">{ownerName}</span>
+            <span className="soft-badge">{ownerName}</span>
             <span
-              className={`rounded-full px-2.5 py-1 font-semibold ${
+              className={`soft-badge ${
                 visibility === 'PUBLIC'
                   ? 'bg-emerald-100 text-emerald-700'
                   : 'bg-amber-100 text-amber-700'
@@ -58,7 +57,7 @@ export default function LessonLibraryCard({ lesson, onStudy, onEdit, onDelete, o
           <button
             type="button"
             onClick={onStudy}
-            className="rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
+            className="btn-primary px-4 py-2.5"
           >
             {canManage ? 'Study Now' : 'Xem'}
           </button>
@@ -68,7 +67,7 @@ export default function LessonLibraryCard({ lesson, onStudy, onEdit, onDelete, o
               <button
                 type="button"
                 onClick={() => setMenuOpen((prev) => !prev)}
-                className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-gray-100 text-slate-600 transition-colors hover:bg-slate-50"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-600 transition-colors hover:bg-slate-100"
                 aria-label="Open lesson menu"
               >
                 <svg viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5" aria-hidden="true">
@@ -77,14 +76,14 @@ export default function LessonLibraryCard({ lesson, onStudy, onEdit, onDelete, o
               </button>
 
               {menuOpen && (
-                <div className="absolute right-0 top-12 z-10 w-36 rounded-xl border border-gray-100 bg-white p-1.5 shadow-lg">
+                <div className="absolute right-0 top-12 z-10 w-36 rounded-xl border border-slate-200 bg-white p-1.5 shadow-[0_8px_24px_rgba(15,23,42,0.08)]">
                   <button
                     type="button"
                     onClick={() => {
                       onEdit();
                       setMenuOpen(false);
                     }}
-                    className="w-full rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
+                    className="w-full rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100"
                   >
                     Edit
                   </button>

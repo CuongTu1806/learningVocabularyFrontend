@@ -39,10 +39,10 @@ export default function QuizResultDetailPage() {
   if (loading) {
     return (
       <Layout>
-        <div className="flex items-center justify-center min-h-screen">
+        <div className="flex min-h-screen items-center justify-center bg-slate-50">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Đang tải chi tiết...</p>
+            <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-2 border-slate-300 border-t-slate-900"></div>
+            <p className="text-slate-600">Đang tải chi tiết...</p>
           </div>
         </div>
       </Layout>
@@ -55,41 +55,41 @@ export default function QuizResultDetailPage() {
 
   return (
     <Layout>
-      <div className="bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen py-12">
-        <div className="max-w-4xl mx-auto px-6">
+      <div className="min-h-screen bg-slate-50 py-12">
+        <div className="mx-auto max-w-4xl px-6">
           {/* Header */}
           <button
             onClick={() => navigate('/quiz-history')}
-            className="mb-6 text-blue-600 hover:text-blue-800 font-semibold flex items-center gap-2"
+            className="mb-6 flex items-center gap-2 font-semibold text-slate-900 underline-offset-4 hover:underline"
           >
             ← Quay lại lịch sử
           </button>
 
           {/* Score Card */}
-          <div className="card mb-8 bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
+          <div className="card mb-8 border-slate-200 bg-white">
             <div className="flex items-center justify-between mb-4">
-              <h1 className="text-3xl font-bold text-gray-800">Chi tiết kết quả</h1>
-              <div className="text-5xl font-bold text-blue-600">{scorePercentage}%</div>
+              <h1 className="text-3xl font-semibold text-slate-900">Chi tiết kết quả</h1>
+              <div className="text-5xl font-semibold text-slate-900">{scorePercentage}%</div>
             </div>
             <div className="grid grid-cols-3 gap-4">
               <div className="text-center">
-                <p className="text-gray-600 text-sm">Đúng</p>
-                <p className="text-3xl font-bold text-green-600 mt-2">{correctCount}</p>
+                <p className="text-sm text-slate-600">Đúng</p>
+                <p className="mt-2 text-3xl font-semibold text-emerald-600">{correctCount}</p>
               </div>
-              <div className="text-center border-l border-r border-gray-300">
-                <p className="text-gray-600 text-sm">Tổng cộng</p>
-                <p className="text-3xl font-bold text-gray-800 mt-2">{totalCount}</p>
+              <div className="text-center border-l border-r border-slate-200">
+                <p className="text-sm text-slate-600">Tổng cộng</p>
+                <p className="mt-2 text-3xl font-semibold text-slate-900">{totalCount}</p>
               </div>
               <div className="text-center">
-                <p className="text-gray-600 text-sm">Sai</p>
-                <p className="text-3xl font-bold text-red-600 mt-2">{totalCount - correctCount}</p>
+                <p className="text-sm text-slate-600">Sai</p>
+                <p className="mt-2 text-3xl font-semibold text-red-600">{totalCount - correctCount}</p>
               </div>
             </div>
           </div>
 
           {error && (
-            <div className="card bg-red-50 border-red-200 mb-6">
-              <p className="text-red-600 font-semibold">{error}</p>
+            <div className="card mb-6 border-red-200 bg-red-50">
+              <p className="font-semibold text-red-700">{error}</p>
             </div>
           )}
 
@@ -97,7 +97,7 @@ export default function QuizResultDetailPage() {
           <div className="space-y-4">
             {results.map((result, index) => (
               <div
-                key={index}
+                key={result.id || `${quizId}-${index}`}
                 className={`card border-l-4 ${
                   result.correct ? 'border-green-500' : 'border-red-500'
                 }`}
@@ -106,10 +106,10 @@ export default function QuizResultDetailPage() {
                   <div className={`text-3xl font-bold flex-shrink-0 ${
                     result.correct ? 'text-green-600' : 'text-red-600'
                   }`}>
-                    {result.correct ? '✅' : '❌'}
+                    {result.correct ? 'Đúng' : 'Sai'}
                   </div>
                   <div className="flex-grow">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                    <h3 className="mb-4 text-lg font-semibold text-slate-900">
                       Câu {index + 1}: {result.content || 'Câu hỏi'}
                     </h3>
 
@@ -121,7 +121,7 @@ export default function QuizResultDetailPage() {
                           ? 'bg-green-50 border-green-500' 
                           : 'bg-red-50 border-red-500'
                       }`}>
-                        <p className="text-sm text-gray-600 mb-1">
+                        <p className="mb-1 text-sm text-slate-500">
                           {result.correct ? '✓ Bạn trả lời' : '✗ Bạn trả lời'}
                         </p>
                         <p className={`font-semibold ${
@@ -133,9 +133,9 @@ export default function QuizResultDetailPage() {
 
                       {/* Correct answer (if wrong) */}
                       {!result.correct && (
-                        <div className="p-3 rounded-lg bg-green-50 border-2 border-green-500">
-                          <p className="text-sm text-gray-600 mb-1">✓ Đáp án đúng</p>
-                          <p className="font-semibold text-green-700">
+                        <div className="rounded-lg border-2 border-emerald-500 bg-emerald-50 p-3">
+                          <p className="mb-1 text-sm text-slate-500">✓ Đáp án đúng</p>
+                          <p className="font-semibold text-emerald-700">
                             {result.correctAnswer}
                           </p>
                         </div>
@@ -151,13 +151,13 @@ export default function QuizResultDetailPage() {
           <div className="mt-12 flex gap-3 justify-center">
             <button
               onClick={() => navigate('/quiz-history')}
-              className="btn-primary py-3 px-6 flex items-center gap-2"
+              className="btn-primary flex items-center gap-2 px-6 py-3"
             >
-              📜 Quay lại lịch sử
+              Quay lại lịch sử
             </button>
             <button
               onClick={() => navigate('/lessons')}
-              className="btn-secondary py-3 px-6 flex items-center gap-2"
+              className="btn-secondary flex items-center gap-2 px-6 py-3"
             >
               Tiếp tục học
             </button>

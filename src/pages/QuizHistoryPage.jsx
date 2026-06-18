@@ -9,7 +9,6 @@ export default function QuizHistoryPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [page, setPage] = useState(0);
-  const [pageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
 
   // Filter states
@@ -38,8 +37,8 @@ export default function QuizHistoryPage() {
       const filterObj = {};
       if (filters.name) filterObj.name = filters.name;
       if (filters.mode) filterObj.mode = filters.mode;
-      if (filters.minScore) filterObj.minScore = parseInt(filters.minScore);
-      if (filters.maxScore) filterObj.maxScore = parseInt(filters.maxScore);
+      if (filters.minScore) filterObj.minScore = Number.parseInt(filters.minScore, 10);
+      if (filters.maxScore) filterObj.maxScore = Number.parseInt(filters.maxScore, 10);
       if (filters.startDate) {
         filterObj.startTime = `${filters.startDate}T00:00:00`;
       }
@@ -108,27 +107,28 @@ export default function QuizHistoryPage() {
 
   return (
     <Layout>
-      <div className="bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen py-12">
-        <div className="max-w-6xl mx-auto px-6">
+      <div className="bg-slate-50 min-h-screen py-12">
+        <div className="mx-auto max-w-6xl px-6">
           {/* Header */}
           <div className="mb-8">
-            <h1 className="text-4xl font-bold text-gray-800 flex items-center gap-3 mb-2">
-              📜 Lịch sử Quiz
+            <h1 className="mb-2 text-4xl font-semibold tracking-tight text-slate-900">
+              Lịch sử Quiz
             </h1>
-            <p className="text-gray-600">Xem và quản lý tất cả các bài quiz mà bạn đã làm</p>
+            <p className="text-slate-600">Xem và quản lý tất cả các bài quiz mà bạn đã làm</p>
           </div>
 
           {/* Filter Section */}
           <div className="card mb-8">
-            <h2 className="text-xl font-bold mb-6">Tìm kiếm & Lọc</h2>
+            <h2 className="mb-6 text-xl font-semibold text-slate-900">Tìm kiếm và lọc</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
               {/* Search by name */}
               <div>
-                <label className="block text-sm font-semibold mb-2 text-gray-800">
+                <label htmlFor="quiz-history-name" className="mb-2 block text-sm font-semibold text-slate-700">
                   Tên Quiz
                 </label>
                 <input
+                  id="quiz-history-name"
                   type="text"
                   placeholder="Nhập tên bài quiz..."
                   value={filters.name}
@@ -139,10 +139,11 @@ export default function QuizHistoryPage() {
 
               {/* Mode filter */}
               <div>
-                <label className="block text-sm font-semibold mb-2 text-gray-800">
+                <label htmlFor="quiz-history-mode" className="mb-2 block text-sm font-semibold text-slate-700">
                   Chế độ
                 </label>
                 <select
+                  id="quiz-history-mode"
                   value={filters.mode}
                   onChange={(e) => setFilters({ ...filters, mode: e.target.value })}
                   className="input-field"
@@ -157,10 +158,11 @@ export default function QuizHistoryPage() {
 
               {/* Start date */}
               <div>
-                <label className="block text-sm font-semibold mb-2 text-gray-800">
+                <label htmlFor="quiz-history-start-date" className="mb-2 block text-sm font-semibold text-slate-700">
                   Từ ngày
                 </label>
                 <input
+                  id="quiz-history-start-date"
                   type="date"
                   value={filters.startDate}
                   onChange={(e) => setFilters({ ...filters, startDate: e.target.value })}
@@ -170,10 +172,11 @@ export default function QuizHistoryPage() {
 
               {/* End date */}
               <div>
-                <label className="block text-sm font-semibold mb-2 text-gray-800">
+                <label htmlFor="quiz-history-end-date" className="mb-2 block text-sm font-semibold text-slate-700">
                   Đến ngày
                 </label>
                 <input
+                  id="quiz-history-end-date"
                   type="date"
                   value={filters.endDate}
                   onChange={(e) => setFilters({ ...filters, endDate: e.target.value })}
@@ -183,10 +186,11 @@ export default function QuizHistoryPage() {
 
               {/* Min score */}
               <div>
-                <label className="block text-sm font-semibold mb-2 text-gray-800">
+                <label htmlFor="quiz-history-min-score" className="mb-2 block text-sm font-semibold text-slate-700">
                   Điểm tối thiểu
                 </label>
                 <input
+                  id="quiz-history-min-score"
                   type="number"
                   min="0"
                   max="100"
@@ -199,10 +203,11 @@ export default function QuizHistoryPage() {
 
               {/* Max score */}
               <div>
-                <label className="block text-sm font-semibold mb-2 text-gray-800">
+                <label htmlFor="quiz-history-max-score" className="mb-2 block text-sm font-semibold text-slate-700">
                   Điểm tối đa
                 </label>
                 <input
+                  id="quiz-history-max-score"
                   type="number"
                   min="0"
                   max="100"
@@ -220,7 +225,7 @@ export default function QuizHistoryPage() {
                 onClick={handleSearch}
                 className="btn-primary flex items-center gap-2 py-2 px-6"
               >
-                🔍 Tìm kiếm
+                Tìm kiếm
               </button>
               <button
                 onClick={handleReset}
@@ -242,8 +247,8 @@ export default function QuizHistoryPage() {
           {loading && (
             <div className="flex items-center justify-center py-12">
               <div className="text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                <p className="text-gray-600">Đang tải dữ liệu...</p>
+                <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-2 border-slate-300 border-t-slate-900"></div>
+                <p className="text-slate-600">Đang tải dữ liệu...</p>
               </div>
             </div>
           )}
@@ -253,26 +258,26 @@ export default function QuizHistoryPage() {
             <div className="card overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-gray-200">
-                    <th className="text-left py-3 px-4 font-semibold text-gray-800">Bài Quiz</th>
-                    <th className="text-left py-3 px-4 font-semibold text-gray-800">Chế độ</th>
-                    <th className="text-left py-3 px-4 font-semibold text-gray-800">Ngày giờ</th>
-                    <th className="text-center py-3 px-4 font-semibold text-gray-800">Điểm</th>
-                    <th className="text-center py-3 px-4 font-semibold text-gray-800">Thao tác</th>
+                  <tr className="border-b border-slate-200">
+                    <th className="px-4 py-3 text-left font-semibold text-slate-700">Bài Quiz</th>
+                    <th className="px-4 py-3 text-left font-semibold text-slate-700">Chế độ</th>
+                    <th className="px-4 py-3 text-left font-semibold text-slate-700">Ngày giờ</th>
+                    <th className="px-4 py-3 text-center font-semibold text-slate-700">Điểm</th>
+                    <th className="px-4 py-3 text-center font-semibold text-slate-700">Thao tác</th>
                   </tr>
                 </thead>
                 <tbody>
                   {history.map((item, index) => (
-                    <tr key={index} className="border-b border-gray-100 hover:bg-gray-50 transition">
+                    <tr key={item.quizId || `${item.createdAt || 'time'}-${item.lessonName || 'quiz'}`} className="border-b border-slate-100 hover:bg-slate-50 transition">
                       <td className="py-3 px-4">
-                        <p className="font-semibold text-gray-800">{item.lessonName || 'Quiz'}</p>
+                        <p className="font-semibold text-slate-900">{item.lessonName || 'Quiz'}</p>
                       </td>
                       <td className="py-3 px-4">
-                        <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-semibold">
+                        <span className="rounded-full bg-slate-100 px-3 py-1 text-sm font-semibold text-slate-700">
                           {getModeLabel(item.mode)}
                         </span>
                       </td>
-                      <td className="py-3 px-4 text-sm text-gray-600">
+                      <td className="py-3 px-4 text-sm text-slate-600">
                         {formatDate(item.createdAt)}
                       </td>
                       <td className="py-3 px-4 text-center">
@@ -283,7 +288,7 @@ export default function QuizHistoryPage() {
                       <td className="py-3 px-4 text-center">
                         <button
                           onClick={() => handleViewDetail(item.quizId)}
-                          className="text-blue-600 hover:text-blue-800 font-semibold hover:underline transition"
+                          className="font-semibold text-slate-900 underline-offset-4 transition hover:underline"
                         >
                           Xem chi tiết
                         </button>
@@ -298,16 +303,16 @@ export default function QuizHistoryPage() {
           {/* Empty state */}
           {!loading && history.length === 0 && (
             <div className="card text-center py-12">
-              <p className="text-5xl mb-4">📭</p>
-              <p className="text-gray-600 text-lg">Chưa có lịch sử quiz</p>
-              <p className="text-gray-500 text-sm mt-2">Hãy làm bài quiz để tạo lịch sử</p>
+              <div className="mx-auto mb-4 h-12 w-12 rounded-2xl bg-slate-100" />
+              <p className="text-lg text-slate-600">Chưa có lịch sử quiz</p>
+              <p className="mt-2 text-sm text-slate-500">Hãy làm bài quiz để tạo lịch sử</p>
             </div>
           )}
 
           {/* Pagination */}
           {!loading && totalPages > 1 && (
             <div className="mt-8 flex items-center justify-between">
-              <div className="text-gray-600">
+              <div className="text-slate-600">
                 Trang {page + 1} / {totalPages}
               </div>
               <div className="flex gap-2">
@@ -316,8 +321,8 @@ export default function QuizHistoryPage() {
                   disabled={page === 0}
                   className={`px-4 py-2 rounded font-semibold transition ${
                     page === 0
-                      ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                      : 'bg-blue-600 text-white hover:bg-blue-700'
+                      ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                      : 'bg-slate-900 text-white hover:bg-slate-800'
                   }`}
                 >
                   ← Trang trước
@@ -327,8 +332,8 @@ export default function QuizHistoryPage() {
                   disabled={page >= totalPages - 1}
                   className={`px-4 py-2 rounded font-semibold transition ${
                     page >= totalPages - 1
-                      ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                      : 'bg-blue-600 text-white hover:bg-blue-700'
+                      ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                      : 'bg-slate-900 text-white hover:bg-slate-800'
                   }`}
                 >
                   Trang sau →

@@ -122,12 +122,12 @@ export default function ClassroomsPage() {
 
   return (
     <Layout>
-      <div className="bg-gradient-to-br from-slate-50 to-slate-100 py-12">
-        <div className="max-w-6xl mx-auto px-6">
+      <div className="bg-slate-50 py-12 min-h-screen">
+        <div className="mx-auto max-w-6xl px-6">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
             <div>
-              <h1 className="text-4xl font-bold text-gradient mb-2">Lớp học</h1>
-              <p className="text-gray-600 text-lg">Tạo lớp, mời bạn hoặc tham gia bằng mã lớp</p>
+              <h1 className="mb-2 text-4xl font-semibold tracking-tight text-slate-900">Lớp học</h1>
+              <p className="text-lg text-slate-600">Tạo lớp, mời bạn hoặc tham gia bằng mã lớp</p>
             </div>
             <button
               type="button"
@@ -142,15 +142,15 @@ export default function ClassroomsPage() {
           </div>
 
           {error && (
-            <div className="card bg-red-50 border-red-200 mb-6 p-4">
-              <p className="text-red-600">{error}</p>
+            <div className="card mb-6 border-red-200 bg-red-50 p-4">
+              <p className="text-red-700">{error}</p>
             </div>
           )}
 
           {/* Tham gia lớp — form ngang giống ô tìm kiếm Dashboard */}
           <div className="card mb-10">
-            <h2 className="text-lg font-bold text-gray-800 mb-3">Tham gia lớp có sẵn</h2>
-            <p className="text-sm text-gray-600 mb-4">Nhập mã lớp (ID) do chủ lớp cung cấp, sau đó bấm Tham gia.</p>
+            <h2 className="mb-3 text-lg font-semibold text-slate-900">Tham gia lớp có sẵn</h2>
+            <p className="mb-4 text-sm text-slate-600">Nhập mã lớp (ID) do chủ lớp cung cấp, sau đó bấm Tham gia.</p>
             <form onSubmit={handleJoin} className="flex flex-col sm:flex-row gap-3">
               <input
                 type="number"
@@ -174,26 +174,26 @@ export default function ClassroomsPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {classrooms.length === 0 ? (
-              <div className="col-span-full text-center text-gray-500 py-12 card">
+              <div className="col-span-full card py-12 text-center text-slate-600">
                 <p className="text-lg mb-2">Bạn chưa có lớp nào</p>
                 <p className="text-sm">Tạo lớp mới hoặc tham gia bằng mã lớp phía trên.</p>
               </div>
             ) : (
               classrooms.map((c) => (
-                <div key={c.id} className="card hover:shadow-lg transition-shadow">
+                <div key={c.id} className="card transition-shadow hover:shadow-lg">
                   <div className="flex justify-between items-start mb-3">
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-xl font-bold text-gray-900 truncate">{c.name}</h3>
-                      <p className="text-sm text-gray-600 line-clamp-2">{c.description || 'Không có mô tả'}</p>
+                      <h3 className="truncate text-xl font-semibold text-slate-900">{c.name}</h3>
+                      <p className="line-clamp-2 text-sm text-slate-600">{c.description || 'Không có mô tả'}</p>
                     </div>
                     {c.currentUserIsOwner && (
-                      <span className="ml-2 shrink-0 text-xs font-semibold px-2 py-1 rounded-full bg-purple-100 text-purple-700">
+                      <span className="ml-2 shrink-0 rounded-full bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-700">
                         Chủ lớp
                       </span>
                     )}
                   </div>
-                  <p className="text-xs text-gray-400 mb-4">Mã lớp: #{c.id}</p>
-                  <div className="flex flex-col gap-2 pt-4 border-t border-gray-100">
+                  <p className="mb-4 text-xs text-slate-500">Mã lớp: #{c.id}</p>
+                  <div className="flex flex-col gap-2 border-t border-slate-100 pt-4">
                     <button
                       type="button"
                       onClick={() => navigate(`/classes/${c.id}`)}
@@ -229,14 +229,15 @@ export default function ClassroomsPage() {
 
       {(showCreateModal || showEditModal) && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl">
-            <h3 className="text-2xl font-bold text-gray-800 mb-6">
+          <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl">
+            <h3 className="mb-6 text-2xl font-semibold text-slate-900">
               {showCreateModal ? 'Tạo lớp mới' : 'Sửa thông tin lớp'}
             </h3>
             <div className="space-y-4">
               <div>
-                <label className="block text-gray-700 font-semibold mb-2">Tên lớp *</label>
+                <label htmlFor="classroom-name" className="mb-2 block font-semibold text-slate-700">Tên lớp *</label>
                 <input
+                  id="classroom-name"
                   type="text"
                   className="input-field"
                   placeholder="VD: Tiếng Anh Công nghệ"
@@ -245,8 +246,9 @@ export default function ClassroomsPage() {
                 />
               </div>
               <div>
-                <label className="block text-gray-700 font-semibold mb-2">Mô tả (tuỳ chọn)</label>
+                <label htmlFor="classroom-description" className="mb-2 block font-semibold text-slate-700">Mô tả (tuỳ chọn)</label>
                 <textarea
+                  id="classroom-description"
                   className="input-field resize-none h-24"
                   placeholder="Giới thiệu ngắn..."
                   value={formData.description}

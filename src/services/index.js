@@ -47,7 +47,7 @@ export const quizAPI = {
 export const spacedRepetitionAPI = {
   start: (userVocabularyId) => api.post(`/spaced_repetition/start/${userVocabularyId}`),
   answer: (data) => api.post('/spaced_repetition/answer', data),
-  getDue: (limit = 20) => api.get('/spaced_repetition/due', { params: { limit } }),
+  getDue: (limit = 1000) => api.get('/spaced_repetition/due', { params: { limit } }),
   getSummary: () => api.get('/spaced_repetition/summary'),
   getCalendar: (year, month) => api.get('/spaced_repetition/calendar', { params: { year, month } }),
   getSettings: () => api.get('/spaced_repetition/settings'),

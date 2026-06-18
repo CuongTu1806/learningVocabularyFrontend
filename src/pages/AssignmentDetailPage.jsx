@@ -304,8 +304,8 @@ export default function AssignmentDetailPage() {
 
   return (
     <Layout>
-      <div className="bg-gradient-to-br from-slate-50 to-slate-100 py-12 min-h-screen">
-        <div className="max-w-4xl mx-auto px-6">
+      <div className="min-h-screen bg-slate-50 py-12">
+        <div className="mx-auto max-w-4xl px-6">
           <button
             type="button"
             onClick={() =>
@@ -313,47 +313,47 @@ export default function AssignmentDetailPage() {
                 ? navigate(`/classes/${assignment.classId}`)
                 : navigate('/classes')
             }
-            className="mb-6 text-blue-600 font-semibold hover:text-blue-800"
+            className="mb-6 font-semibold text-slate-900 underline-offset-4 hover:underline"
           >
             ← Danh sách bài tập
           </button>
 
-          <div className="card mb-8 bg-gradient-to-r from-indigo-50 to-blue-50 border-indigo-100">
+          <div className="card mb-8 border-slate-200 bg-white">
             <div className="flex flex-wrap justify-between gap-4 items-start">
               <div>
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">{assignment.title}</h1>
+                <h1 className="mb-2 text-3xl font-semibold tracking-tight text-slate-900">{assignment.title}</h1>
                 {classroom && (
-                  <p className="text-sm text-indigo-700 font-medium mb-2">Lớp: {classroom.name}</p>
+                  <p className="mb-2 text-sm font-medium text-slate-700">Lớp: {classroom.name}</p>
                 )}
-                <p className="text-gray-700 whitespace-pre-wrap">{assignment.description || 'Không có mô tả'}</p>
-                <p className="text-sm text-gray-500 mt-4">
+                <p className="whitespace-pre-wrap text-slate-700">{assignment.description || 'Không có mô tả'}</p>
+                <p className="mt-4 text-sm text-slate-500">
                   Hạn nộp:{' '}
                   {assignment.dueDate ? new Date(assignment.dueDate).toLocaleString('vi-VN') : '—'}
                   {isOverdue && <span className="ml-2 text-red-600 font-semibold">(Đã hết hạn)</span>}
                 </p>
                 {(assignment.attachments?.length > 0 || isTeacher) && (
                   <div className="mt-4 pt-4 border-t border-indigo-100">
-                    <p className="text-sm font-semibold text-gray-800 mb-2">Tài liệu đề bài</p>
+                    <p className="mb-2 text-sm font-semibold text-slate-900">Tài liệu đề bài</p>
                     <ul className="space-y-2">
                       {(assignment.attachments || []).map((att) => (
                         <li
                           key={att.id}
-                          className="flex flex-wrap items-center gap-2 text-sm text-indigo-800"
+                          className="flex flex-wrap items-center gap-2 text-sm text-slate-700"
                         >
                           <button
                             type="button"
-                            className="text-blue-600 hover:underline font-medium"
+                            className="font-medium text-slate-900 underline-offset-4 hover:underline"
                             onClick={() => handleDownloadAssignmentFile(att)}
                           >
                             {att.originalFilename || `File #${att.id}`}
                           </button>
-                          <span className="text-gray-500 text-xs">
+                          <span className="text-xs text-slate-500">
                             ({att.sizeBytes != null ? `${(att.sizeBytes / 1024).toFixed(1)} KB` : '—'})
                           </span>
                           {isTeacher && (
                             <button
                               type="button"
-                              className="text-red-600 text-xs hover:underline"
+                              className="text-xs text-red-600 underline-offset-4 hover:underline"
                               onClick={() => handleDeleteAssignmentFile(att.id)}
                             >
                               Xóa
@@ -395,7 +395,7 @@ export default function AssignmentDetailPage() {
 
           {isTeacher && submissions.length > 0 && (
             <div className="card mb-8">
-              <h2 className="text-xl font-bold text-gray-800 mb-4">Bài nộp &amp; chấm điểm</h2>
+              <h2 className="mb-4 text-xl font-semibold text-slate-900">Bài nộp &amp; chấm điểm</h2>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm text-left">
                   <thead>

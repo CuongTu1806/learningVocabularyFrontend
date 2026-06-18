@@ -13,6 +13,49 @@ function defaultDueLocal() {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
+function createAssignmentQuestion(questionMode) {
+  return {
+    id: crypto.randomUUID(),
+    text: '',
+    choices: questionMode === 'quiz' ? [] : undefined,
+  };
+}
+
+function updateQuestionTextInList(list, questionId, text) {
+  return list.map((question) => (question.id === questionId ? { ...question, text } : question));
+}
+
+function updateChoiceTextInList(list, questionId, choiceId, text) {
+  return list.map((question) => {
+    if (question.id !== questionId) return question;
+    const choices = (question.choices || []).map((choice) => (choice.id === choiceId ? { ...choice, text } : choice));
+    return { ...question, choices };
+  });
+}
+
+function updateChoiceCorrectInList(list, questionId, choiceId, correct) {
+  return list.map((question) => {
+    if (question.id !== questionId) return question;
+    const choices = (question.choices || []).map((choice) => (choice.id === choiceId ? { ...choice, correct } : choice));
+    return { ...question, choices };
+  });
+}
+
+function addChoiceToQuestionInList(list, questionId) {
+  return list.map((question) =>
+    question.id === questionId
+      ? {
+          ...question,
+          choices: [...(question.choices || []), { id: crypto.randomUUID(), text: '', correct: false }],
+        }
+      : question,
+  );
+}
+
+function removeQuestionFromList(list, questionId) {
+  return list.filter((question) => question.id !== questionId);
+}
+
 export default function AssignmentsListPage() {
   const { classId } = useParams();
   const location = useLocation();
@@ -92,6 +135,13 @@ export default function AssignmentsListPage() {
     load();
   }, [load]);
 
+  const updateQuestionText = (questionId, text) => setQuestions((currentQuestions) => updateQuestionTextInList(currentQuestions, questionId, text));
+  const updateChoiceText = (questionId, choiceId, text) => setQuestions((currentQuestions) => updateChoiceTextInList(currentQuestions, questionId, choiceId, text));
+  const updateChoiceCorrect = (questionId, choiceId, correct) => setQuestions((currentQuestions) => updateChoiceCorrectInList(currentQuestions, questionId, choiceId, correct));
+  const addChoiceToQuestion = (questionId) => setQuestions((currentQuestions) => addChoiceToQuestionInList(currentQuestions, questionId));
+  const removeQuestion = (questionId) => setQuestions((currentQuestions) => removeQuestionFromList(currentQuestions, questionId));
+  const addQuestion = () => setQuestions((currentQuestions) => [...currentQuestions, createAssignmentQuestion(questionMode)]);
+
   const handleCreate = async () => {
     if (!form.title.trim()) {
       alert('Nhập tiêu đề bài tập');
@@ -102,7 +152,9 @@ export default function AssignmentsListPage() {
       return;
     }
     const due = form.dueDate.length === 16 ? `${form.dueDate}:00` : form.dueDate;
-    const assignmentType = questionMode === 'file' ? 'file' : questionMode === 'quiz' ? 'quiz' : 'fill';
+    let assignmentType = 'fill';
+    if (questionMode === 'file') assignmentType = 'file';
+    if (questionMode === 'quiz') assignmentType = 'quiz';
     try {
       setSaving(true);
       const payload = {
@@ -150,51 +202,55 @@ export default function AssignmentsListPage() {
 
   return (
     <Layout>
-      <div className="bg-gradient-to-br from-slate-50 to-slate-100 py-12">
-        <div className="max-w-6xl mx-auto px-6">
+      <div className="bg-slate-50 py-12 min-h-screen">
+        <div className="mx-auto max-w-6xl px-6">
           <div className="mb-8">
             <button
               type="button"
               onClick={() => (isClassScope ? navigate(`/classes/${classId}`) : navigate('/dashboard'))}
-              className="text-blue-600 hover:text-blue-800 font-semibold mb-4"
+              className="mb-4 font-semibold text-slate-900 underline-offset-4 hover:underline"
             >
               {isClassScope ? '← Về lớp học' : '← Trang chủ'}
             </button>
-            <h1 className="text-4xl font-bold text-gradient mb-2">
+            <h1 className="mb-2 text-4xl font-semibold tracking-tight text-slate-900">
               {isClassScope ? 'Bài tập trong lớp' : 'Bài tập tôi đã giao'}
             </h1>
-            <p className="text-gray-600 text-lg">
-              {isClassScope ? (classroom?.name ? `Lớp: ${classroom.name}` : 'Danh sách bài tập theo lớp') : 'Các bài tập bạn đã tạo (chủ lớp)'}
-            </p>
+            {(() => {
+              let heading = 'Các bài tập bạn đã tạo (chủ lớp)';
+              if (isClassScope) {
+                heading = classroom?.name ? `Lớp: ${classroom.name}` : 'Danh sách bài tập theo lớp';
+              }
+              return <p className="text-lg text-slate-600">{heading}</p>;
+            })()}
           </div>
 
           {error && (
-            <div className="card bg-red-50 border-red-200 mb-6 p-4">
-              <p className="text-red-600">{error}</p>
+            <div className="card mb-6 border-red-200 bg-red-50 p-4">
+              <p className="text-red-700">{error}</p>
             </div>
           )}
 
           {canCreate && (
-            <div className="mb-8 text-sm text-gray-500">Mở từ trang lớp để tạo bài tập.</div>
+            <div className="mb-8 text-sm text-slate-500">Mở từ trang lớp để tạo bài tập.</div>
           )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {items.length === 0 ? (
-              <div className="col-span-full card text-center text-gray-500 py-12">
+              <div className="col-span-full card py-12 text-center text-slate-600">
                 {isClassScope ? 'Chưa có bài tập nào trong lớp này.' : 'Bạn chưa tạo bài tập nào.'}
               </div>
             ) : (
               items.map((a) => (
-                <div key={a.id} className="card hover:shadow-lg transition-shadow">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">{a.title}</h3>
-                  <p className="text-sm text-gray-600 line-clamp-2 mb-3">{a.description || '—'}</p>
-                  <p className="text-xs text-gray-500 mb-4">
+                <div key={a.id} className="card transition-shadow hover:shadow-lg">
+                  <h3 className="mb-2 text-xl font-semibold text-slate-900">{a.title}</h3>
+                  <p className="mb-3 line-clamp-2 text-sm text-slate-600">{a.description || '—'}</p>
+                  <p className="mb-4 text-xs text-slate-500">
                     Hạn nộp:{' '}
                     {a.dueDate
                       ? new Date(a.dueDate).toLocaleString('vi-VN')
                       : '—'}
                   </p>
-                  <div className="flex flex-wrap gap-2 pt-3 border-t border-gray-100">
+                  <div className="flex flex-wrap gap-2 border-t border-slate-100 pt-3">
                     <button
                       type="button"
                       onClick={() => navigate(`/assignments/${a.id}`)}
@@ -224,12 +280,12 @@ export default function AssignmentsListPage() {
 
       {showModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl max-h-[90vh] overflow-y-auto">
-            <h3 className="text-2xl font-bold text-gray-800 mb-6">Giao bài mới</h3>
+            <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl bg-white p-8 shadow-2xl">
+            <h3 className="mb-6 text-2xl font-semibold text-slate-900">Giao bài mới</h3>
             <div className="space-y-4">
               <div>
-                <label htmlFor="assignment-type" className="block font-semibold text-gray-700 mb-2">Loại bài tập</label>
-                <div id="assignment-type" className="flex gap-2">
+                <label htmlFor="assignment-type" className="mb-2 block font-semibold text-slate-700">Loại bài tập</label>
+                <div id="assignment-type" className="flex gap-2 flex-wrap">
                   <button type="button" onClick={() => setQuestionMode('file')} className={`px-3 py-1 rounded ${questionMode === 'file' ? 'bg-blue-600 text-white' : 'bg-white border'}`}>Nộp file / văn bản</button>
                   <button type="button" onClick={() => setQuestionMode('quiz')} className={`px-3 py-1 rounded ${questionMode === 'quiz' ? 'bg-blue-600 text-white' : 'bg-white border'}`}>Trắc nghiệm</button>
                   <button type="button" onClick={() => setQuestionMode('fill')} className={`px-3 py-1 rounded ${questionMode === 'fill' ? 'bg-blue-600 text-white' : 'bg-white border'}`}>Điền đáp án</button>
@@ -286,34 +342,18 @@ export default function AssignmentsListPage() {
                   <div className="space-y-3">
                     {questions.map((q, qi) => (
                       <div key={q.id || q.text || qi} className="p-3 border rounded">
-                        <input className="input-field mb-2" value={q.text} onChange={(e) => setQuestions(questions.map((x) => (x.id === q.id ? { ...x, text: e.target.value } : x)))} placeholder={`Câu hỏi ${qi + 1}`} />
+                        <input className="input-field mb-2" value={q.text} onChange={(e) => updateQuestionText(q.id, e.target.value)} placeholder={`Câu hỏi ${qi + 1}`} />
                         {questionMode === 'quiz' && (
                           <div className="space-y-2">
                             {(q.choices||[]).map((ch, ci) => (
                               <div key={ch.id || ch.text || ci} className="flex items-center gap-2">
-                                <input type="text" className="input-field flex-1" value={ch.text} onChange={(e)=>{
-                                  const next = questions.map((x)=>{
-                                    if(x.id !== q.id) return x;
-                                    const choices = (x.choices||[]).map((c)=> c.id === ch.id ? {...c,text:e.target.value}:c);
-                                    return {...x, choices};
-                                  });
-                                  setQuestions(next);
-                                }} />
-                                <label className="text-sm"><input type="checkbox" checked={ch.correct} onChange={(e)=>{
-                                  const next = questions.map((x)=>{
-                                    if(x.id !== q.id) return x;
-                                    const choices = (x.choices||[]).map((c)=> c.id === ch.id ? {...c,correct:e.target.checked}:c);
-                                    return {...x, choices};
-                                  });
-                                  setQuestions(next);
-                                }} /> Đúng</label>
+                                <input type="text" className="input-field flex-1" value={ch.text} onChange={(e)=>updateChoiceText(q.id, ch.id, e.target.value)} />
+                                <label className="text-sm"><input type="checkbox" checked={ch.correct} onChange={(e)=>updateChoiceCorrect(q.id, ch.id, e.target.checked)} /> Đúng</label>
                               </div>
                             ))}
                             <div className="flex gap-2 mt-2">
-                              <button type="button" className="btn-secondary" onClick={()=>{
-                                setQuestions(questions.map((x)=>x.id===q.id?{...x,choices:[...(x.choices||[]),{id:crypto.randomUUID(),text:'',correct:false}]}:x));
-                              }}>Thêm lựa chọn</button>
-                              <button type="button" className="text-red-600" onClick={()=>setQuestions(questions.filter((x)=>x.id!==q.id))}>Xóa câu hỏi</button>
+                              <button type="button" className="btn-secondary" onClick={()=>addChoiceToQuestion(q.id)}>Thêm lựa chọn</button>
+                              <button type="button" className="text-red-600" onClick={()=>removeQuestion(q.id)}>Xóa câu hỏi</button>
                             </div>
                           </div>
                         )}
@@ -323,7 +363,7 @@ export default function AssignmentsListPage() {
                       </div>
                     ))}
                     <div>
-                          <button type="button" className="btn-primary" onClick={()=>setQuestions([...questions, { id: crypto.randomUUID(), text:'', choices: questionMode==='quiz' ? [] : undefined }])}>Thêm câu hỏi</button>
+                      <button type="button" className="btn-primary" onClick={addQuestion}>Thêm câu hỏi</button>
                     </div>
                   </div>
                 </div>

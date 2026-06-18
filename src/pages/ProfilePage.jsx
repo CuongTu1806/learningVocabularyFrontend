@@ -95,8 +95,8 @@ export default function ProfilePage() {
       <Layout>
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Đang tải thông tin...</p>
+            <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-2 border-slate-300 border-t-slate-900"></div>
+            <p className="text-slate-600">Đang tải thông tin...</p>
           </div>
         </div>
       </Layout>
@@ -105,18 +105,18 @@ export default function ProfilePage() {
 
   return (
     <Layout>
-      <div className="bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen py-12">
-        <div className="max-w-6xl mx-auto px-6">
+      <div className="bg-slate-50 min-h-screen py-12">
+        <div className="mx-auto max-w-6xl px-6">
           {/* Messages */}
           {error && (
-            <div className="card bg-red-50 border-red-200 mb-6">
-              <p className="text-red-600 font-semibold">❌ {error}</p>
+            <div className="card mb-6 bg-red-50">
+              <p className="font-medium text-red-700">{error}</p>
             </div>
           )}
 
           {success && (
-            <div className="card bg-green-50 border-green-200 mb-6">
-              <p className="text-green-600 font-semibold">✅ {success}</p>
+            <div className="card mb-6 bg-emerald-50">
+              <p className="font-medium text-emerald-700">{success}</p>
             </div>
           )}
 
@@ -149,16 +149,16 @@ export default function ProfilePage() {
             {!showChangePassword ? (
               <button
                 onClick={() => setShowChangePassword(true)}
-                className="btn-primary w-full py-3 flex items-center justify-center gap-2"
+                className="btn-primary w-full py-3"
               >
-                🔐 Đổi mật khẩu
+                Đổi mật khẩu
               </button>
             ) : (
               <div>
-                <h2 className="text-2xl font-bold mb-6">Đổi mật khẩu</h2>
+                <h2 className="mb-6 text-2xl font-semibold text-slate-900">Đổi mật khẩu</h2>
                 <form onSubmit={handleChangePassword} className="space-y-4">
                   <div>
-                    <label className="block text-sm font-semibold mb-2 text-gray-800">
+                    <label className="mb-2 block text-sm font-semibold text-slate-700">
                       Mật khẩu hiện tại
                     </label>
                     <input
@@ -174,7 +174,7 @@ export default function ProfilePage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold mb-2 text-gray-800">
+                    <label className="mb-2 block text-sm font-semibold text-slate-700">
                       Mật khẩu mới
                     </label>
                     <input
@@ -190,7 +190,7 @@ export default function ProfilePage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold mb-2 text-gray-800">
+                    <label className="mb-2 block text-sm font-semibold text-slate-700">
                       Xác nhận mật khẩu mới
                     </label>
                     <input
@@ -209,7 +209,7 @@ export default function ProfilePage() {
                     <button
                       type="submit"
                       disabled={passwordLoading}
-                      className="btn-primary flex-1 py-3 flex items-center justify-center gap-2"
+                      className="btn-primary flex-1 py-3"
                     >
                       {passwordLoading ? 'Đang cập nhật...' : 'Lưu thay đổi'}
                     </button>
@@ -227,7 +227,7 @@ export default function ProfilePage() {
                       className="btn-secondary flex-1 py-3"
                       disabled={passwordLoading}
                     >
-                      ❌ Hủy
+                      Hủy
                     </button>
                   </div>
                 </form>

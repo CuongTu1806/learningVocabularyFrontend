@@ -67,6 +67,8 @@ export default function SpacedRepetitionPage() {
     return calendarDay?.dueCount || 0;
   };
 
+  const dayNames = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+
   const daysInMonth = getDaysInMonth(currentDate);
   const firstDay = getFirstDayOfMonth(currentDate);
   const monthName = currentDate.toLocaleString('vi-VN', { month: 'long', year: 'numeric' });
@@ -74,8 +76,8 @@ export default function SpacedRepetitionPage() {
   if (loading)
     return (
       <Layout>
-        <div className="bg-gradient-to-br from-slate-50 to-slate-100 py-12 flex items-center justify-center min-h-screen">
-          <div className="text-3xl font-bold text-gray-600">⏳ Đang tải...</div>
+        <div className="bg-slate-50 py-12 flex items-center justify-center min-h-screen">
+          <div className="text-2xl font-semibold text-slate-600">Đang tải...</div>
         </div>
       </Layout>
     );
@@ -83,7 +85,7 @@ export default function SpacedRepetitionPage() {
   if (error)
     return (
       <Layout>
-        <div className="bg-gradient-to-br from-slate-50 to-slate-100 py-12 flex items-center justify-center min-h-screen">
+        <div className="bg-slate-50 py-12 flex items-center justify-center min-h-screen">
           <div className="text-xl text-red-600 font-semibold">{error}</div>
         </div>
       </Layout>
@@ -91,136 +93,109 @@ export default function SpacedRepetitionPage() {
 
   return (
     <Layout>
-      <div className="bg-gradient-to-br from-slate-50 to-slate-100 py-12 min-h-screen">
-        <div className="max-w-6xl w-full mx-auto px-6">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Ôn tập theo Spaced Repetition</h1>
-          <p className="text-gray-600">Luyện tập từ vựng theo cơ chế lặp lại ngắt quãng</p>
-        </div>
-
-        {/* Daily Summary Cards */}
-        {summary && (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
-            {/* Learning Due */}
-            <div className="card bg-gradient-to-br from-sky-50 to-sky-100 border-l-4 border-l-sky-400">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-600 font-medium">Learning</p>
-                  <p className="text-4xl font-bold text-sky-600">{summary.learningDue}</p>
-                </div>
-                <div className="text-5xl">📘</div>
-              </div>
-            </div>
-
-            {/* Relearning Due */}
-            <div className="card bg-gradient-to-br from-red-50 to-red-100 border-l-4 border-l-red-500">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-600 font-medium">Relearning</p>
-                  <p className="text-4xl font-bold text-red-600">{summary.relearningDue}</p>
-                </div>
-                <div className="text-5xl">🔴</div>
-              </div>
-            </div>
-
-            {/* Review Due */}
-            <div className="card bg-gradient-to-br from-green-50 to-green-100 border-l-4 border-l-green-500">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-600 font-medium">Review</p>
-                  <p className="text-4xl font-bold text-green-600">{summary.reviewDue}</p>
-                </div>
-                <div className="text-5xl">✅</div>
-              </div>
-            </div>
-
-            {/* Total Due */}
-            <div className="card bg-gradient-to-br from-slate-50 to-slate-100 border-l-4 border-l-slate-400">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-600 font-medium">Tổng cộng</p>
-                  <p className="text-4xl font-bold text-slate-700">{summary.totalDue}</p>
-                </div>
-              </div>
-            </div>
+      <div className="min-h-screen bg-slate-50 py-12">
+        <div className="mx-auto w-full max-w-6xl px-4 md:px-6">
+          <div className="mb-8">
+            <h1 className="text-4xl font-semibold tracking-tight text-slate-900">Ôn tập theo Spaced Repetition</h1>
+            <p className="mt-2 text-slate-600">Luyện tập từ vựng theo cơ chế lặp lại ngắt quãng</p>
           </div>
-        )}
 
-        {/* Action Button */}
-        <div className="mb-8">
-          <button
-            onClick={() => (window.location.href = '/review-flashcard')}
-            className="btn-primary px-8 py-4 text-lg font-semibold"
-            disabled={!summary || summary.totalDue === 0}
-          >
-            {summary?.totalDue > 0 ? 'Bắt đầu ôn tập' : 'Không có bài nào hôm nay'}
-          </button>
-        </div>
+          {summary && (
+            <div className="grid grid-cols-1 gap-4 mb-8 md:grid-cols-2 xl:grid-cols-4">
+              <div className="card border-slate-200 bg-white">
+                <p className="text-sm font-medium text-slate-500">Learning</p>
+                <p className="mt-2 text-4xl font-semibold text-slate-900">{summary.learningDue}</p>
+              </div>
+              <div className="card border-slate-200 bg-white">
+                <p className="text-sm font-medium text-slate-500">Relearning</p>
+                <p className="mt-2 text-4xl font-semibold text-slate-900">{summary.relearningDue}</p>
+              </div>
+              <div className="card border-slate-200 bg-white">
+                <p className="text-sm font-medium text-slate-500">Review</p>
+                <p className="mt-2 text-4xl font-semibold text-slate-900">{summary.reviewDue}</p>
+              </div>
+              <div className="card border-slate-200 bg-white">
+                <p className="text-sm font-medium text-slate-500">Tổng cộng</p>
+                <p className="mt-2 text-4xl font-semibold text-slate-900">{summary.totalDue}</p>
+              </div>
+            </div>
+          )}
 
-        {/* Calendar */}
-        <div className="card">
-          <div className="mb-6">
-            <div className="flex items-center justify-between mb-4">
-              <button onClick={handlePrevMonth} className="px-4 py-2 hover:bg-gray-200 rounded-lg font-semibold">
+          <div className="mb-8 flex flex-wrap gap-3">
+            <button
+              onClick={() => (globalThis.location.href = '/review-flashcard')}
+              className="btn-primary px-6 py-3 font-semibold"
+              disabled={!summary || summary.totalDue === 0}
+            >
+              {summary?.totalDue > 0 ? 'Bắt đầu ôn tập' : 'Không có bài nào hôm nay'}
+            </button>
+            <button
+              onClick={() => (globalThis.location.href = '/review-settings')}
+              className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-6 py-3 font-semibold text-slate-700 transition-colors hover:bg-slate-100"
+            >
+              Cài đặt Spaced Repetition
+            </button>
+          </div>
+
+          <div className="card border-slate-200 bg-white">
+            <div className="mb-5 flex items-center justify-between gap-3">
+              <button onClick={handlePrevMonth} className="btn-secondary px-4 py-2 font-semibold">
                 Trước
               </button>
-              <h2 className="text-2xl font-bold text-center flex-grow capitalize">{monthName}</h2>
-              <button onClick={handleNextMonth} className="px-4 py-2 hover:bg-gray-200 rounded-lg font-semibold">
+              <h2 className="flex-1 text-center text-2xl font-semibold capitalize text-slate-900">{monthName}</h2>
+              <button onClick={handleNextMonth} className="btn-secondary px-4 py-2 font-semibold">
                 Sau
               </button>
             </div>
 
-            {/* Calendar Grid */}
-            <div className="bg-white rounded-lg p-4">
-              {/* Day headers */}
-              <div className="grid grid-cols-7 gap-2 mb-2">
-                {['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'].map((day) => (
-                  <div key={day} className="text-center font-bold text-gray-600 py-2">
+            <div className="rounded-2xl border border-slate-200 bg-slate-50/60 p-4">
+              <div className="grid grid-cols-7 gap-2 mb-2 text-center text-xs font-semibold uppercase tracking-wide text-slate-500">
+                {dayNames.map((day) => (
+                  <div key={day} className="py-2">
                     {day}
                   </div>
                 ))}
               </div>
 
-              {/* Calendar days */}
               <div className="grid grid-cols-7 gap-2">
-                {/* Empty cells for days before month starts */}
                 {Array.from({ length: firstDay }).map((_, idx) => (
-                  <div key={`empty-${idx}`} className="aspect-square"></div>
+                  <div key={`empty-${firstDay}-${idx}`} className="aspect-square" />
                 ))}
 
-                {/* Days of month */}
                 {Array.from({ length: daysInMonth }).map((_, idx) => {
                   const day = idx + 1;
                   const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
                   const dueCount = getCardCount(date);
-                  
-                  // Check if this is today
                   const today = new Date();
-                  const isToday = 
-                    day === today.getDate() && 
-                    currentDate.getMonth() === today.getMonth() && 
+                  const isToday =
+                    day === today.getDate() &&
+                    currentDate.getMonth() === today.getMonth() &&
                     currentDate.getFullYear() === today.getFullYear();
+                  let dayClasses = 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50';
+
+                  if (dueCount > 0) {
+                    dayClasses = 'border-blue-200 bg-blue-50 text-slate-900 hover:bg-blue-100';
+                  }
+
+                  if (isToday) {
+                    dayClasses = 'border-slate-900 bg-slate-900 text-white';
+                  }
 
                   return (
                     <div
                       key={day}
-                      className={`aspect-square rounded-lg border-2 p-2 text-center flex flex-col items-center justify-center cursor-pointer transition-all ${
-                        isToday
-                          ? 'bg-green-100 border-green-500 ring-2 ring-green-400 hover:bg-green-200'
-                          : dueCount > 0
-                          ? 'bg-blue-50 border-blue-400 hover:bg-blue-100'
-                          : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
-                      }`}
+                      className={`aspect-square rounded-xl border p-2 text-center transition-all ${dayClasses}`}
                     >
-                      <div className={`text-sm font-bold ${isToday ? 'text-green-700' : 'text-gray-900'}`}>
-                        {isToday && '📍 '}{day}
-                      </div>
-                      {dueCount > 0 && (
-                        <div className={`text-xs font-bold ${isToday ? 'text-green-700' : 'text-blue-600'} mt-1`}>
-                          {dueCount} 📌
+                      <div className="flex h-full flex-col items-center justify-center">
+                        <div className={`text-sm font-semibold ${isToday ? 'text-white' : 'text-slate-900'}`}>
+                          {day}
                         </div>
-                      )}
+                        {dueCount > 0 && (
+                          <div className={`mt-1 text-xs font-semibold ${isToday ? 'text-white/90' : 'text-blue-700'}`}>
+                            {dueCount} due
+                          </div>
+                        )}
+                      </div>
                     </div>
                   );
                 })}
@@ -228,18 +203,7 @@ export default function SpacedRepetitionPage() {
             </div>
           </div>
         </div>
-
-        {/* Settings Link */}
-        <div className="mt-8 text-center">
-          <button
-            onClick={() => (window.location.href = '/review-settings')}
-            className="text-blue-600 hover:underline font-semibold"
-          >
-            Cài đặt Spaced Repetition
-          </button>
-        </div>
       </div>
-    </div>
     </Layout>
   );
 }

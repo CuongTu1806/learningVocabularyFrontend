@@ -231,34 +231,34 @@ export default function ContestPlayPage() {
 
   return (
     <Layout>
-      <div className="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 min-h-screen text-white pb-16">
-        <div className="max-w-6xl mx-auto px-6 pt-8 grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-8 items-start">
+      <div className="min-h-screen bg-slate-50 pb-16 text-slate-900">
+        <div className="mx-auto grid max-w-6xl grid-cols-1 items-start gap-8 px-6 pt-8 lg:grid-cols-[1fr_280px]">
           <div className="min-w-0 max-w-3xl order-2 lg:order-1">
           <button
             type="button"
             onClick={() => navigate('/contests')}
-            className="text-cyan-400 hover:text-cyan-300 text-sm font-semibold mb-6"
+            className="mb-6 text-sm font-semibold text-slate-900 underline-offset-4 hover:underline"
           >
             ← Cuộc thi
           </button>
 
-          <h1 className="text-3xl font-bold mb-2">{contest.title}</h1>
-          <p className="text-white/70 text-sm mb-8 whitespace-pre-wrap">{contest.description}</p>
+          <h1 className="mb-2 text-3xl font-semibold tracking-tight text-slate-900">{contest.title}</h1>
+          <p className="mb-8 whitespace-pre-wrap text-sm text-slate-600">{contest.description}</p>
 
           {beforeStart && (
-            <div className="rounded-xl bg-amber-500/20 border border-amber-400/40 p-4 mb-6 text-amber-100">
+            <div className="mb-6 rounded-xl border border-amber-200 bg-amber-50 p-4 text-amber-800">
               Cuộc thi chưa bắt đầu. Thời gian bắt đầu:{' '}
               {contest.startTime ? new Date(contest.startTime).toLocaleString('vi-VN') : '—'}
             </div>
           )}
           {afterEnd && (
-            <div className="rounded-xl bg-gray-500/20 border border-gray-400/40 p-4 mb-6 text-gray-200">
+            <div className="mb-6 rounded-xl border border-slate-200 bg-slate-100 p-4 text-slate-600">
               Cuộc thi đã kết thúc. Bạn vẫn xem được điểm và bảng xếp hạng.
             </div>
           )}
 
           {!registerOk && (
-            <div className="rounded-xl bg-red-500/20 border border-red-400/40 p-4 mb-6 text-red-100 text-sm">
+            <div className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
               Chưa đăng ký tham gia.{' '}
               <button type="button" className="underline font-semibold" onClick={() => tryRegister()}>
                 Thử đăng ký lại
@@ -267,14 +267,14 @@ export default function ContestPlayPage() {
           )}
 
           {sortedProblems.length === 0 && (
-            <p className="text-white/60">Chưa có câu hỏi trong cuộc thi này.</p>
+            <p className="text-slate-500">Chưa có câu hỏi trong cuộc thi này.</p>
           )}
 
           {allDone && sortedProblems.length > 0 && (
-            <div className="rounded-2xl bg-gradient-to-r from-emerald-600/40 to-cyan-600/40 border border-white/20 p-8 text-center">
-              <p className="text-2xl font-bold text-emerald-200 mb-2">Hoàn thành!</p>
-              <p className="text-white/80">
-                Tổng điểm: <span className="text-amber-300 font-bold text-xl">{myStats?.totalScore ?? 0}</span>
+            <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
+              <p className="mb-2 text-2xl font-semibold text-slate-900">Hoàn thành!</p>
+              <p className="text-slate-600">
+                Tổng điểm: <span className="text-xl font-semibold text-slate-900">{myStats?.totalScore ?? 0}</span>
               </p>
             </div>
           )}
@@ -284,23 +284,23 @@ export default function ContestPlayPage() {
               onSubmit={handleSubmit}
               className={`rounded-2xl border-2 transition-all duration-300 ${
                 feedback === 'correct'
-                  ? 'border-emerald-400 shadow-[0_0_24px_rgba(52,211,153,0.45)] bg-emerald-950/30'
+                  ? 'border-emerald-300 bg-emerald-50 shadow-sm'
                   : feedback === 'wrong'
-                    ? 'border-red-400 shadow-[0_0_24px_rgba(248,113,113,0.35)] bg-red-950/20'
-                    : 'border-white/10 bg-white/5'
+                    ? 'border-red-300 bg-red-50 shadow-sm'
+                    : 'border-slate-200 bg-white shadow-sm'
               }`}
             >
               <div className="p-6 md:p-8">
-                <p className="text-xs text-white/50 mb-2">
+                <p className="mb-2 text-xs text-slate-500">
                   Câu {(sortedProblems.findIndex((p) => p.id === currentProblem.id) ?? 0) + 1} /{' '}
                   {sortedProblems.length}
                   {currentProblem.maxScore != null && (
-                    <span className="ml-2 text-amber-200/80">(+{currentProblem.maxScore} điểm)</span>
+                    <span className="ml-2 text-slate-500">(+{currentProblem.maxScore} điểm)</span>
                   )}
                 </p>
-                <h2 className="text-xl font-bold text-white mb-2">{currentProblem.title}</h2>
+                <h2 className="mb-2 text-xl font-semibold text-slate-900">{currentProblem.title}</h2>
                 {currentProblem.description && (
-                  <p className="text-white/75 mb-6 whitespace-pre-wrap">{currentProblem.description}</p>
+                  <p className="mb-6 whitespace-pre-wrap text-slate-600">{currentProblem.description}</p>
                 )}
                 {(() => {
                   const hasUp =
@@ -313,14 +313,14 @@ export default function ContestPlayPage() {
                   return (
                     <>
                       {showLoading && (
-                        <p className="text-white/50 text-sm mb-3">Đang tải ảnh...</p>
+                        <p className="mb-3 text-sm text-slate-500">Đang tải ảnh...</p>
                       )}
                       {(showBlob || showExternal) && (
-                        <div className="mb-6 rounded-xl overflow-hidden border border-white/10 bg-black/20">
+                        <div className="mb-6 overflow-hidden rounded-xl border border-slate-200 bg-slate-100">
                           <img
                             src={showBlob ? uploadedImageBlobUrl : ext}
                             alt=""
-                            className="w-full max-h-72 object-contain mx-auto bg-black/30"
+                            className="mx-auto w-full max-h-72 object-contain bg-slate-100"
                             referrerPolicy={showBlob ? undefined : 'no-referrer'}
                             loading="eager"
                             decoding="async"
@@ -329,7 +329,7 @@ export default function ContestPlayPage() {
                         </div>
                       )}
                       {imageLoadError && (
-                        <p className="text-amber-200/90 text-sm mb-4 rounded-lg bg-amber-900/30 border border-amber-500/30 px-3 py-2">
+                        <p className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-700">
                           {hasUp
                             ? 'Không tải được ảnh từ server. Thử tạo lại hoặc upload ảnh khác.'
                             : 'Không tải được ảnh (URL chặn hotlink hoặc cần https).'}
@@ -338,10 +338,10 @@ export default function ContestPlayPage() {
                     </>
                   );
                 })()}
-                <label className="block text-sm font-semibold text-white/80 mb-2">Đáp án (tiếng Anh)</label>
+                <label className="mb-2 block text-sm font-semibold text-slate-700">Đáp án (tiếng Anh)</label>
                 <input
                   type="text"
-                  className="w-full input-field bg-white/10 border-white/20 text-white placeholder-white/40 mb-4"
+                  className="mb-4 w-full input-field"
                   placeholder="Ví dụ: dog"
                   value={answer}
                   onChange={(e) => setAnswer(e.target.value)}
@@ -349,16 +349,16 @@ export default function ContestPlayPage() {
                   autoComplete="off"
                 />
                 {feedback === 'correct' && (
-                  <p className="text-emerald-300 font-semibold mb-2 animate-pulse">Đúng rồi!</p>
+                  <p className="mb-2 font-semibold text-emerald-700 animate-pulse">Đúng rồi!</p>
                 )}
                 {feedback === 'wrong' && (
-                  <p className="text-red-300 font-semibold mb-2">
+                  <p className="mb-2 font-semibold text-red-700">
                     Chưa đúng — đã ghi nhận. Sang câu tiếp theo!
                   </p>
                 )}
                 <button
                   type="submit"
-                  className="btn-primary w-full py-3 bg-gradient-to-r from-cyan-600 to-blue-600 border-0"
+                  className="btn-primary w-full py-3"
                   disabled={submitting || !inWindow || !registerOk || !answer.trim()}
                 >
                   {submitting ? 'Đang gửi...' : 'Nộp đáp án'}
@@ -369,41 +369,41 @@ export default function ContestPlayPage() {
           </div>
 
           <aside className="order-1 lg:order-2 lg:sticky lg:top-24 space-y-3 w-full shrink-0">
-            <div className="rounded-xl bg-black/40 backdrop-blur-md border border-white/10 p-4 shadow-xl">
-              <p className="text-xs text-white/60 uppercase tracking-wide">Điểm</p>
-              <p className="text-3xl font-bold text-amber-300 tabular-nums">{myStats?.totalScore ?? 0}</p>
+            <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+              <p className="text-xs uppercase tracking-wide text-slate-500">Điểm</p>
+              <p className="tabular-nums text-3xl font-semibold text-slate-900">{myStats?.totalScore ?? 0}</p>
               {myStats?.rank != null && (
-                <p className="text-sm text-white/80 mt-1">
-                  Hạng: <span className="font-semibold text-cyan-300">#{myStats.rank}</span>
+                <p className="mt-1 text-sm text-slate-600">
+                  Hạng: <span className="font-semibold text-slate-900">#{myStats.rank}</span>
                 </p>
               )}
-              <p className="text-xs text-white/50 mt-2">
+              <p className="mt-2 text-xs text-slate-500">
                 {myStats?.problemsAnswered ?? 0}/{myStats?.totalProblems ?? sortedProblems.length} câu
               </p>
             </div>
-            <div className="rounded-xl bg-black/40 backdrop-blur-md border border-white/10 p-4 shadow-xl">
-              <p className="text-xs text-white/60 uppercase tracking-wide">Thời gian còn lại</p>
-              <p className="text-2xl font-mono font-bold text-emerald-300 tabular-nums">
+            <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+              <p className="text-xs uppercase tracking-wide text-slate-500">Thời gian còn lại</p>
+              <p className="tabular-nums text-2xl font-semibold text-slate-900">
                 {afterEnd ? '0:00' : remainingSec != null ? formatRemain(remainingSec) : '—'}
               </p>
             </div>
-            <div className="rounded-xl bg-black/40 backdrop-blur-md border border-white/10 p-3 shadow-xl max-h-60 overflow-y-auto">
-              <p className="text-xs text-white/60 uppercase tracking-wide mb-2">Bảng xếp hạng</p>
+            <div className="max-h-60 overflow-y-auto rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
+              <p className="mb-2 text-xs uppercase tracking-wide text-slate-500">Bảng xếp hạng</p>
               <ul className="space-y-1.5 text-sm">
                 {(ranking || []).slice(0, 8).map((row, i) => (
                   <li
                     key={`${row.userId}-${i}`}
-                    className="flex justify-between gap-2 border-b border-white/5 pb-1"
+                    className="flex justify-between gap-2 border-b border-slate-100 pb-1"
                   >
-                    <span className="text-white/90 truncate">
-                      <span className="text-amber-400/90 font-mono w-6 inline-block">#{row.rank}</span>{' '}
+                    <span className="truncate text-slate-700">
+                      <span className="inline-block w-6 font-mono text-slate-500">#{row.rank}</span>{' '}
                       {row.username || `User ${row.userId}`}
                     </span>
-                    <span className="text-cyan-300 font-semibold tabular-nums shrink-0">{row.totalScore}</span>
+                    <span className="shrink-0 tabular-nums font-semibold text-slate-900">{row.totalScore}</span>
                   </li>
                 ))}
                 {(!ranking || ranking.length === 0) && (
-                  <li className="text-white/40 text-xs">Chưa có điểm</li>
+                  <li className="text-xs text-slate-500">Chưa có điểm</li>
                 )}
               </ul>
             </div>

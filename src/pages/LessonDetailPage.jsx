@@ -1,4 +1,6 @@
+/* eslint-disable complexity, sonarjs/cognitive-complexity */
 import React, { useCallback, useEffect, useState } from 'react';
+import PropTypes from 'prop-types';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { lessonAPI, vocabularyAPI } from '../services/index';
@@ -173,7 +175,6 @@ export default function LessonDetailPage() {
 
   const isOwner = lesson?.ownerId != null && Number(lesson.ownerId) === Number(user?.userId);
   const canStartQuiz = lesson?.currentUserCanQuiz === true || isOwner;
-
   const handleDownloadLesson = async () => {
     try {
       setImporting(true);
@@ -190,6 +191,49 @@ export default function LessonDetailPage() {
       setImporting(false);
     }
   };
+
+  let primaryAction = null;
+
+  if (isOwner) {
+    primaryAction = (
+      <>
+        <button
+          onClick={() => {
+            resetForm();
+            setShowAddModal(true);
+          }}
+          className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors font-semibold"
+        >
+          Them tu vung
+        </button>
+        <button
+          onClick={() => navigate(`/quiz/${id}`)}
+          className="inline-flex items-center justify-center px-4 py-2 rounded-lg border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors font-semibold"
+        >
+          On tap
+        </button>
+      </>
+    );
+  } else if (canStartQuiz) {
+    primaryAction = (
+      <button
+        onClick={() => navigate(`/quiz/${id}`)}
+        className="inline-flex items-center justify-center px-4 py-2 rounded-lg border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors font-semibold"
+      >
+        On tap
+      </button>
+    );
+  } else {
+    primaryAction = (
+      <button
+        onClick={handleDownloadLesson}
+        disabled={importing}
+        className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 disabled:bg-slate-300 transition-colors font-semibold"
+      >
+        {importing ? 'Dang tai ve...' : 'Tai bai hoc ve'}
+      </button>
+    );
+  }
 
   const handleSelectVocab = (vocabId) => {
     if (vocabId === selectedVocabId) return;
@@ -248,17 +292,26 @@ export default function LessonDetailPage() {
     }
   };
 
-  if (loading) return <Layout><div className="text-center p-8 h-96 flex items-center justify-center">Dang tai tu vung...</div></Layout>;
+  if (loading) {
+    return (
+      <Layout>
+        <div className="flex h-[70vh] items-center justify-center bg-slate-50 px-4">
+          <div className="rounded-2xl border border-slate-200 bg-white px-6 py-4 text-slate-600 shadow-sm">
+            Đang tải từ vựng...
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout hideFooter mainClassName="overflow-hidden">
-      <div className="h-full bg-slate-100 overflow-hidden">
+      <div className="h-full overflow-hidden bg-slate-50">
         <div className="h-full max-w-7xl mx-auto px-4 md:px-6 py-4 md:py-6">
           <div className="h-full min-h-0 flex flex-col gap-4">
-            <header className="sticky top-0 z-20 bg-white/95 backdrop-blur border border-slate-200 rounded-2xl px-4 md:px-6 py-4 shadow-sm">
+            <header className="sticky top-0 z-20 rounded-2xl border border-slate-200 bg-white/95 px-4 py-4 shadow-sm backdrop-blur md:px-6">
               <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                 <div className="flex items-center gap-3 md:gap-4">
-                  
                   <div>
                     <h1 className="text-2xl md:text-3xl font-bold text-slate-900">Chi tiet bai hoc</h1>
                     <p className="text-sm md:text-base text-slate-500 mt-1">{vocabularies.length} tu vung</p>
@@ -272,40 +325,7 @@ export default function LessonDetailPage() {
                   >
                     Quay lai
                   </button>
-                  {isOwner ? (
-                    <>
-                      <button
-                        onClick={() => {
-                          resetForm();
-                          setShowAddModal(true);
-                        }}
-                        className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors font-semibold"
-                      >
-                        Them tu vung
-                      </button>
-                      <button
-                        onClick={() => navigate(`/quiz/${id}`)}
-                        className="inline-flex items-center justify-center px-4 py-2 rounded-lg border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors font-semibold"
-                      >
-                        On tap
-                      </button>
-                    </>
-                  ) : canStartQuiz ? (
-                    <button
-                      onClick={() => navigate(`/quiz/${id}`)}
-                      className="inline-flex items-center justify-center px-4 py-2 rounded-lg border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors font-semibold"
-                    >
-                      On tap
-                    </button>
-                  ) : (
-                    <button
-                      onClick={handleDownloadLesson}
-                      disabled={importing}
-                      className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 disabled:bg-slate-300 transition-colors font-semibold"
-                    >
-                      {importing ? 'Dang tai ve...' : 'Tai bai hoc ve'}
-                    </button>
-                  )}
+                  {primaryAction}
                 </div>
               </div>
             </header>
@@ -355,82 +375,84 @@ export default function LessonDetailPage() {
                         }`}
                       >
                         {isOwner && (
-                          <div className="mb-5 rounded-2xl border border-slate-200 bg-slate-50/70 p-3">
-                          <div className="flex items-center justify-between gap-3 mb-3">
-                            <p className="text-sm font-semibold uppercase tracking-wide text-slate-700">Tim va them tu vung</p>
-                            {searching && <span className="text-xs text-blue-600">Dang tim...</span>}
-                          </div>
+                          <div className="mb-5 rounded-2xl border border-slate-200 bg-slate-50/70 p-4">
+                            <div className="flex items-center justify-between gap-3 mb-3">
+                              <p className="text-sm font-semibold uppercase tracking-wide text-slate-700">Tìm và thêm từ vựng</p>
+                              {searching && <span className="text-xs text-blue-600">Đang tìm...</span>}
+                            </div>
 
-                          <div className="relative">
-                            <input
-                              type="text"
-                              value={searchKeyword}
-                              onChange={(e) => setSearchKeyword(e.target.value)}
-                              placeholder="Go de tim tu vung toan he thong..."
-                              className="w-full px-4 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            />
+                            <div className="relative">
+                              <input
+                                type="text"
+                                value={searchKeyword}
+                                onChange={(e) => setSearchKeyword(e.target.value)}
+                                placeholder="Gõ để tìm từ vựng toàn hệ thống..."
+                                className="input-field"
+                              />
 
-                            {searchKeyword.trim() && (
-                              <div className="absolute left-0 right-0 top-[calc(100%+8px)] z-30 max-h-56 rounded-xl border border-slate-200 bg-white shadow-lg overflow-y-auto space-y-2 p-2 pr-1">
-                                {searchResults.length > 0 && (
-                                  searchResults.map((item, index) => {
-                                    const itemWord = getWordLabel(item);
-                                    const itemMeaning = getMeaningLabel(item);
-                                    const itemAudio = getAudioPath(item);
-                                    const itemImage = getImagePath(item);
-                                    const adding = addingSearchWord === itemWord.toLowerCase();
-                                    return (
-                                      <div
-                                        key={`${itemWord}-${index}`}
-                                        className="rounded-xl border border-slate-200 bg-white p-3 flex items-start gap-3"
-                                      >
-                                        {itemImage ? (
-                                          <img
-                                            src={buildMediaUrl(itemImage)}
-                                            alt={itemWord}
-                                            className="w-14 h-14 rounded-lg border border-slate-200 object-cover shrink-0"
-                                          />
-                                        ) : (
-                                          <div className="w-14 h-14 rounded-lg border border-slate-200 bg-slate-100 shrink-0" />
-                                        )}
-
-                                        <div className="min-w-0 flex-1">
-                                          <p className="font-semibold text-slate-900 truncate">{itemWord}</p>
-                                          <p className="text-sm text-slate-600 truncate">{itemMeaning}</p>
-                                          <div className="mt-2 flex items-center gap-2">
-                                            <button
-                                              type="button"
-                                              onClick={() => playSearchAudio(itemAudio)}
-                                              disabled={!itemAudio}
-                                              className="inline-flex items-center justify-center h-7 w-7 rounded-full bg-blue-100 text-blue-700 disabled:bg-slate-200 disabled:text-slate-400 transition-colors"
-                                              title={itemAudio ? 'Phat audio' : 'Khong co audio'}
-                                            >
-                                              <span className="text-xs">🔊</span>
-                                            </button>
-                                            <span className="text-xs text-slate-500 truncate">{item.pronunciation ? `/${item.pronunciation}/` : 'No pronunciation'}</span>
-                                          </div>
-                                        </div>
-
-                                        <button
-                                          type="button"
-                                          onClick={() => handleAddFromSearch(item)}
-                                          disabled={adding}
-                                          className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-emerald-600 text-white hover:bg-emerald-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors"
-                                          title="Them vao bai hoc"
+                              {searchKeyword.trim() && (
+                                <div className="absolute left-0 right-0 top-[calc(100%+8px)] z-30 max-h-56 overflow-y-auto space-y-2 rounded-xl border border-slate-200 bg-white p-2 shadow-lg pr-1">
+                                  {searchResults.length > 0 && (
+                                    searchResults.map((item, index) => {
+                                      const itemWord = getWordLabel(item);
+                                      const itemMeaning = getMeaningLabel(item);
+                                      const itemAudio = getAudioPath(item);
+                                      const itemImage = getImagePath(item);
+                                      const adding = addingSearchWord === itemWord.toLowerCase();
+                                      return (
+                                        <div
+                                          key={`${itemWord}-${index}`}
+                                          className="flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-3"
                                         >
-                                          {adding ? '...' : '+'}
-                                        </button>
-                                      </div>
-                                    );
-                                  })
-                                )}
+                                          {itemImage ? (
+                                            <img
+                                              src={buildMediaUrl(itemImage)}
+                                              alt={itemWord}
+                                              className="h-14 w-14 shrink-0 rounded-lg border border-slate-200 object-cover"
+                                            />
+                                          ) : (
+                                            <div className="h-14 w-14 shrink-0 rounded-lg border border-slate-200 bg-slate-100" />
+                                          )}
 
-                                {!searching && searchResults.length === 0 && (
-                                  <p className="text-sm text-slate-500 px-2 py-2">Khong tim thay tu phu hop.</p>
-                                )}
-                              </div>
-                            )}
-                          </div>
+                                          <div className="min-w-0 flex-1">
+                                            <p className="truncate font-semibold text-slate-900">{itemWord}</p>
+                                            <p className="truncate text-sm text-slate-600">{itemMeaning}</p>
+                                            <div className="mt-2 flex items-center gap-2">
+                                              <button
+                                                type="button"
+                                                onClick={() => playSearchAudio(itemAudio)}
+                                                disabled={!itemAudio}
+                                                className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 text-slate-700 transition-colors hover:bg-slate-200 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400"
+                                                title={itemAudio ? 'Phát audio' : 'Không có audio'}
+                                              >
+                                                <span className="text-xs">🔊</span>
+                                              </button>
+                                              <span className="truncate text-xs text-slate-500">
+                                                {item.pronunciation ? `/${item.pronunciation}/` : 'No pronunciation'}
+                                              </span>
+                                            </div>
+                                          </div>
+
+                                          <button
+                                            type="button"
+                                            onClick={() => handleAddFromSearch(item)}
+                                            disabled={adding}
+                                            className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-emerald-600 text-white transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+                                            title="Thêm vào bài học"
+                                          >
+                                            {adding ? '...' : '+'}
+                                          </button>
+                                        </div>
+                                      );
+                                    })
+                                  )}
+
+                                  {!searching && searchResults.length === 0 && (
+                                    <p className="px-2 py-2 text-sm text-slate-500">Không tìm thấy từ phù hợp.</p>
+                                  )}
+                                </div>
+                              )}
+                            </div>
                           </div>
                         )}
 
@@ -566,8 +588,9 @@ function VocabularyModal({ mode, formData, setFormData, onSave, onClose }) {
         
         <div className="space-y-4">
           <div>
-            <label className="block text-gray-700 font-semibold mb-2">Từ vựng (English) *</label>
+            <label htmlFor="lesson-word" className="block text-gray-700 font-semibold mb-2">Từ vựng (English) *</label>
             <input
+              id="lesson-word"
               type="text"
               placeholder="VD: Computer"
               value={formData.word}
@@ -577,8 +600,9 @@ function VocabularyModal({ mode, formData, setFormData, onSave, onClose }) {
           </div>
 
           <div>
-            <label className="block text-gray-700 font-semibold mb-2">Nghĩa (Tiếng Việt) *</label>
+            <label htmlFor="lesson-meaning" className="block text-gray-700 font-semibold mb-2">Nghĩa (Tiếng Việt) *</label>
             <input
+              id="lesson-meaning"
               type="text"
               placeholder="VD: Máy tính"
               value={formData.meaning}
@@ -588,8 +612,9 @@ function VocabularyModal({ mode, formData, setFormData, onSave, onClose }) {
           </div>
 
           <div>
-            <label className="block text-gray-700 font-semibold mb-2">Phát âm</label>
+            <label htmlFor="lesson-pronunciation" className="block text-gray-700 font-semibold mb-2">Phát âm</label>
             <input
+              id="lesson-pronunciation"
               type="text"
               placeholder="VD: kəm-ˈpjü-tər"
               value={formData.pronunciation}
@@ -599,8 +624,9 @@ function VocabularyModal({ mode, formData, setFormData, onSave, onClose }) {
           </div>
 
           <div>
-            <label className="block text-gray-700 font-semibold mb-2">Ví dụ</label>
+            <label htmlFor="lesson-example" className="block text-gray-700 font-semibold mb-2">Ví dụ</label>
             <textarea
+              id="lesson-example"
               placeholder="VD: I use a computer every day"
               value={formData.example}
               onChange={(e) => setFormData({ ...formData, example: e.target.value })}
@@ -627,3 +653,16 @@ function VocabularyModal({ mode, formData, setFormData, onSave, onClose }) {
     </div>
   );
 }
+
+VocabularyModal.propTypes = {
+  mode: PropTypes.oneOf(['add', 'edit']).isRequired,
+  formData: PropTypes.shape({
+    word: PropTypes.string.isRequired,
+    meaning: PropTypes.string.isRequired,
+    pronunciation: PropTypes.string.isRequired,
+    example: PropTypes.string.isRequired,
+  }).isRequired,
+  setFormData: PropTypes.func.isRequired,
+  onSave: PropTypes.func.isRequired,
+  onClose: PropTypes.func.isRequired,
+};

@@ -98,40 +98,53 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 flex items-center justify-center p-4">
-      {/* Animated background blobs */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-white/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-white/10 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1s'}}></div>
-      </div>
+    <div className="min-h-screen bg-slate-50 px-4 py-10">
+      <div className="mx-auto grid min-h-[calc(100vh-5rem)] max-w-6xl items-center lg:grid-cols-[1.1fr_0.9fr] lg:gap-8">
+        <section className="hidden lg:flex lg:flex-col lg:justify-between lg:pr-10">
+          <div className="max-w-xl">
+            <div className="soft-badge mb-5">Learning Vocabulary</div>
+            <h2 className="text-5xl font-semibold tracking-tight text-slate-900">
+              Học từ vựng với nhịp ôn tập rõ ràng và ít thao tác thừa.
+            </h2>
+            <p className="mt-5 max-w-xl text-lg leading-8 text-slate-600">
+              Đăng nhập để tiếp tục bài học, quiz, spaced repetition, lớp học và các chức năng theo dõi tiến trình.
+            </p>
+          </div>
+          <div className="mt-10 grid max-w-lg grid-cols-3 gap-4 text-sm text-slate-600">
+            <div className="rounded-2xl border border-slate-200 bg-white p-4">Ôn tập ngắt quãng</div>
+            <div className="rounded-2xl border border-slate-200 bg-white p-4">Quiz theo bài học</div>
+            <div className="rounded-2xl border border-slate-200 bg-white p-4">Lớp học và bài tập</div>
+          </div>
+        </section>
 
-      <div className="w-full max-w-md relative z-10">
-        {/* Logo/Title */}
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-white">Learning Vocabulary</h2>
-          <p className="text-white/80 mt-2">Học tiếng Anh một cách thông minh</p>
-        </div>
+        <div className="w-full max-w-md justify-self-center">
+          <div className="mb-6 text-center lg:hidden">
+            <div className="soft-badge mb-4">Learning Vocabulary</div>
+            <h2 className="text-3xl font-semibold tracking-tight text-slate-900">Đăng nhập để tiếp tục học</h2>
+            <p className="mt-2 text-slate-600">Giao diện tập trung vào nội dung và thao tác nhanh.</p>
+          </div>
 
-        {/* Form Card */}
-        <div className="glass-effect p-8 space-y-6">
+          {/* Form Card */}
+          <div className="card space-y-6 p-8">
           {success && (
-            <div className={`border-l-4 p-4 rounded-lg ${success.includes('❌') ? 'bg-red-100 border-red-500' : 'bg-green-100 border-green-500'}`}>
-              <p className={`font-semibold text-center ${success.includes('❌') ? 'text-red-800' : 'text-green-800'}`}>{success}</p>
+            <div className={`rounded-2xl border p-4 ${success.includes('❌') ? 'border-red-200 bg-red-50' : 'border-emerald-200 bg-emerald-50'}`}>
+              <p className={`text-center font-medium ${success.includes('❌') ? 'text-red-700' : 'text-emerald-700'}`}>{success}</p>
             </div>
           )}
 
           {error && (
-            <div className="bg-red-100 border-l-4 border-red-500 p-4 rounded-lg">
-              <p className="text-red-800 font-semibold text-center">❌ {error}</p>
+            <div className="rounded-2xl border border-red-200 bg-red-50 p-4">
+              <p className="text-center font-medium text-red-700">{error}</p>
             </div>
           )}
 
           {/* Login Form */}
           {activeTab === 'login' && (
-            <form onSubmit={handleLogin} className="space-y-5 animate-in fade-in duration-300">
+            <form onSubmit={handleLogin} className="space-y-5">
               <div>
-                <label className="block text-sm font-semibold mb-2 text-gray-800">Tên đăng nhập</label>
+                <label htmlFor="login-username" className="mb-2 block text-sm font-semibold text-slate-700">Tên đăng nhập</label>
                 <input
+                  id="login-username"
                   type="text"
                   placeholder="Nhập tên đăng nhập"
                   value={loginCredentials.username}
@@ -142,8 +155,9 @@ export default function Login() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold mb-2 text-gray-800">Mật khẩu</label>
+                <label htmlFor="login-password" className="mb-2 block text-sm font-semibold text-slate-700">Mật khẩu</label>
                 <input
+                  id="login-password"
                   type="password"
                   placeholder="Nhập mật khẩu"
                   value={loginCredentials.password}
@@ -153,7 +167,7 @@ export default function Login() {
                 />
               </div>
 
-              <button type="submit" disabled={loading} className="btn-primary w-full py-3 flex items-center justify-center gap-2">
+              <button type="submit" disabled={loading} className="btn-primary w-full py-3">
                 {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
               </button>
             </form>
@@ -161,10 +175,11 @@ export default function Login() {
 
           {/* Register Form */}
           {activeTab === 'register' && (
-            <form onSubmit={handleRegister} className="space-y-4 animate-in fade-in duration-300">
+            <form onSubmit={handleRegister} className="space-y-4">
               <div>
-                <label className="block text-sm font-semibold mb-2 text-gray-800">Tên đăng nhập</label>
+                <label htmlFor="register-username" className="mb-2 block text-sm font-semibold text-slate-700">Tên đăng nhập</label>
                 <input
+                  id="register-username"
                   type="text"
                   placeholder="Nhập tên đăng nhập"
                   value={registerData.username}
@@ -175,8 +190,9 @@ export default function Login() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold mb-2 text-gray-800">Email</label>
+                <label htmlFor="register-email" className="mb-2 block text-sm font-semibold text-slate-700">Email</label>
                 <input
+                  id="register-email"
                   type="email"
                   placeholder="Nhập email"
                   value={registerData.email}
@@ -187,8 +203,9 @@ export default function Login() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold mb-2 text-gray-800">Mật khẩu</label>
+                <label htmlFor="register-password" className="mb-2 block text-sm font-semibold text-slate-700">Mật khẩu</label>
                 <input
+                  id="register-password"
                   type="password"
                   placeholder="Nhập mật khẩu (ít nhất 6 ký tự)"
                   value={registerData.password}
@@ -199,8 +216,9 @@ export default function Login() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold mb-2 text-gray-800">Xác nhận mật khẩu</label>
+                <label htmlFor="register-confirm-password" className="mb-2 block text-sm font-semibold text-slate-700">Xác nhận mật khẩu</label>
                 <input
+                  id="register-confirm-password"
                   type="password"
                   placeholder="Xác nhận mật khẩu"
                   value={registerData.confirmPassword}
@@ -210,7 +228,7 @@ export default function Login() {
                 />
               </div>
 
-              <button type="submit" disabled={loading} className="btn-primary w-full py-3 flex items-center justify-center gap-2">
+              <button type="submit" disabled={loading} className="btn-primary w-full py-3">
                 {loading ? 'Đang đăng ký...' : 'Đăng ký'}
               </button>
             </form>
@@ -218,14 +236,15 @@ export default function Login() {
 
           {/* Forgot Password Form */}
           {activeTab === 'forgot' && (
-            <form onSubmit={handleForgotPassword} className="space-y-5 animate-in fade-in duration-300">
-              <div className="text-center mb-4">
-                <p className="text-gray-700 text-sm">Nhập email đăng ký của bạn để nhận liên kết đặt lại mật khẩu</p>
+            <form onSubmit={handleForgotPassword} className="space-y-5">
+              <div className="mb-4 text-center">
+                <p className="text-sm text-slate-600">Nhập email đăng ký của bạn để nhận liên kết đặt lại mật khẩu</p>
               </div>
 
               <div>
-                <label className="block text-sm font-semibold mb-2 text-gray-800">Email</label>
+                <label htmlFor="forgot-email" className="mb-2 block text-sm font-semibold text-slate-700">Email</label>
                 <input
+                  id="forgot-email"
                   type="email"
                   placeholder="Nhập email đăng ký"
                   value={forgotEmail}
@@ -235,35 +254,35 @@ export default function Login() {
                 />
               </div>
 
-              <button type="submit" disabled={loading} className="btn-primary w-full py-3 flex items-center justify-center gap-2">
+              <button type="submit" disabled={loading} className="btn-primary w-full py-3">
                 {loading ? 'Đang gửi...' : 'Gửi liên kết đặt lại'}
               </button>
             </form>
           )}
 
           {/* Footer Links */}
-          <div className="pt-4 border-t border-gray-300 space-y-2 text-center">
+          <div className="space-y-2 border-t border-slate-200 pt-4 text-center">
             {activeTab === 'login' && (
               <>
-                <p className="text-gray-700 text-sm">
+                <p className="text-sm text-slate-600">
                   Chưa có tài khoản?{' '}
                   <button
                     onClick={() => {
                       setActiveTab('register');
                       setSuccess('');
                     }}
-                    className="text-purple-600 font-semibold hover:text-purple-700 hover:underline"
+                    className="font-semibold text-slate-900 underline-offset-4 hover:underline"
                   >
                     Đăng ký ngay
                   </button>
                 </p>
-                <p className="text-gray-700 text-sm">
+                <p className="text-sm text-slate-600">
                   <button
                     onClick={() => {
                       setActiveTab('forgot');
                       setSuccess('');
                     }}
-                    className="text-blue-600 font-semibold hover:text-blue-700 hover:underline"
+                    className="font-semibold text-slate-900 underline-offset-4 hover:underline"
                   >
                     Quên mật khẩu?
                   </button>
@@ -272,14 +291,14 @@ export default function Login() {
             )}
 
             {activeTab === 'register' && (
-              <p className="text-gray-700 text-sm">
+              <p className="text-sm text-slate-600">
                 Đã có tài khoản?{' '}
                 <button
                   onClick={() => {
                     setActiveTab('login');
                     setSuccess('');
                   }}
-                  className="text-purple-600 font-semibold hover:text-purple-700 hover:underline"
+                  className="font-semibold text-slate-900 underline-offset-4 hover:underline"
                 >
                   Đăng nhập
                 </button>
@@ -287,13 +306,13 @@ export default function Login() {
             )}
 
             {activeTab === 'forgot' && (
-              <p className="text-gray-700 text-sm">
+              <p className="text-sm text-slate-600">
                 <button
                   onClick={() => {
                     setActiveTab('login');
                     setSuccess('');
                   }}
-                  className="text-purple-600 font-semibold hover:text-purple-700 hover:underline"
+                  className="font-semibold text-slate-900 underline-offset-4 hover:underline"
                 >
                   ← Quay lại đăng nhập
                 </button>
@@ -301,6 +320,7 @@ export default function Login() {
             )}
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

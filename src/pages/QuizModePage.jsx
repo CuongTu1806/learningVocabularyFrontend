@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
 
@@ -37,61 +38,64 @@ export default function QuizModePage() {
 
   return (
     <Layout>
-      <div className="bg-gradient-to-br from-slate-50 to-slate-100 py-12">
-        <div className="max-w-6xl mx-auto px-6">
-          {/* Header */}
-          <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">Chọn chế độ ôn tập</h1>
-            <p className="text-gray-600 text-lg mb-6">Chọn một trong ba chế độ để bắt đầu làm quiz</p>
-            <button 
+      <div className="min-h-screen bg-slate-50 py-12">
+        <div className="mx-auto max-w-6xl px-4 md:px-6">
+          <div className="mb-12 text-center">
+            <h1 className="text-4xl font-semibold tracking-tight text-slate-900">Chọn chế độ ôn tập</h1>
+            <p className="mt-2 text-lg text-slate-600">Chọn một trong ba chế độ để bắt đầu làm quiz</p>
+            <button
               onClick={() => navigate('/lessons')}
-              className="text-blue-600 hover:underline text-sm font-semibold"
+              className="mt-4 text-sm font-semibold text-slate-900 underline-offset-4 hover:underline"
             >
               ← Quay lại danh sách bài
             </button>
           </div>
 
-          {/* Mode Selection Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            {modes.map((mode) => (
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-3 mb-8">
+            {modes.map((mode, index) => (
               <QuizModeCard
-              key={mode.id}
-              mode={mode}
-              isSelected={selectedMode?.id === mode.id}
-              onSelect={() => setSelectedMode(mode)}
-              onStart={() => handleStartQuiz(mode)}
-            />
-          ))}
-        </div>
+                key={mode.id}
+                mode={mode}
+                index={index + 1}
+                isSelected={selectedMode?.id === mode.id}
+                onSelect={() => setSelectedMode(mode)}
+                onStart={() => handleStartQuiz(mode)}
+              />
+            ))}
+          </div>
 
-        {/* Info Box */}
-        <div className="glass-effect p-6 text-center">
-          <p className="text-gray-800 font-semibold mb-2">Mẹo:</p>
-          <p className="text-gray-700">
-            Kết hợp cả ba chế độ để học hiệu quả! Mỗi chế độ rèn luyện khác nhau.
-          </p>
-        </div>
+          <div className="card border-slate-200 bg-white p-6 text-center">
+            <p className="mb-2 font-semibold text-slate-900">Mẹo</p>
+            <p className="text-slate-600">
+              Kết hợp cả ba chế độ để học hiệu quả! Mỗi chế độ rèn luyện khác nhau.
+            </p>
+          </div>
         </div>
       </div>
     </Layout>
   );
 }
 
-function QuizModeCard({ mode, isSelected, onSelect, onStart }) {
+function QuizModeCard({ mode, index, isSelected, onSelect, onStart }) {
   return (
-    <div
-      onClick={onSelect}
-      className={`card cursor-pointer transform transition-all ${
-        isSelected ? 'ring-2 ring-blue-500 scale-105' : 'hover:scale-102'
-      }`}
-    >
-      <div className={`w-16 h-16 rounded-full bg-gradient-to-br ${mode.color} flex items-center justify-center text-3xl mb-4 mx-auto`}>
-        {mode.icon}
-      </div>
-      <h3 className="text-xl font-bold text-center mb-2">{mode.name}</h3>
-      <p className="text-gray-600 text-center text-sm mb-6">{mode.description}</p>
-      
+    <div className={`card border-slate-200 bg-white transition-all ${isSelected ? 'ring-2 ring-slate-400' : 'hover:-translate-y-0.5'}`}>
       <button
+        type="button"
+        onClick={onSelect}
+        className="block w-full text-left"
+      >
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-xl font-semibold text-slate-900">
+          {index}
+        </div>
+        <h3 className="mb-2 text-center text-xl font-semibold text-slate-900">{mode.name}</h3>
+        <p className="mb-4 text-center text-sm text-slate-600">{mode.description}</p>
+        <p className="mb-6 text-center text-xs font-medium uppercase tracking-wide text-slate-500">
+          {isSelected ? 'Đã chọn' : 'Chạm để chọn'}
+        </p>
+      </button>
+
+      <button
+        type="button"
         onClick={(e) => {
           e.stopPropagation();
           onStart();
@@ -103,3 +107,16 @@ function QuizModeCard({ mode, isSelected, onSelect, onStart }) {
     </div>
   );
 }
+
+QuizModeCard.propTypes = {
+  mode: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+    description: PropTypes.string.isRequired,
+    icon: PropTypes.node,
+  }).isRequired,
+  index: PropTypes.number.isRequired,
+  isSelected: PropTypes.bool.isRequired,
+  onSelect: PropTypes.func.isRequired,
+  onStart: PropTypes.func.isRequired,
+};

@@ -27,32 +27,33 @@ export default function Header() {
   ];
 
   return (
-    <header className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 shadow-lg border-b border-white/10">
-      <div className="max-w-7xl mx-auto px-6 py-4">
-        <div className="flex justify-between items-center">
-          {/* Logo & Title */}
-          <div 
-            className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition"
+    <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/90 backdrop-blur">
+      <div className="mx-auto max-w-7xl px-6 py-4">
+        <div className="flex items-center justify-between gap-6">
+          <button
+            type="button"
             onClick={() => navigate('/dashboard')}
+            className="flex items-start gap-3 text-left"
           >
-            <div>
-              <h1 className="text-2xl font-bold text-white">Learning Vocabulary</h1>
-              <p className="text-white/70 text-xs">Học tiếng Anh thông minh</p>
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-900 text-sm font-semibold text-white">
+              LV
             </div>
-          </div>
+            <div>
+              <h1 className="text-xl font-semibold tracking-tight text-slate-900">Learning Vocabulary</h1>
+              <p className="text-sm text-slate-500">Học từ vựng theo lịch ôn có kiểm soát</p>
+            </div>
+          </button>
 
-          {/* Navigation & User Menu */}
-          <div className="flex items-center gap-8">
-            {/* Nav Links */}
-            <nav className="hidden md:flex gap-6">
+          <div className="flex items-center gap-6">
+            <nav className="hidden md:flex gap-2">
               {navItems.map((item) => (
                 <button
                   key={item.path}
                   onClick={() => navigate(item.path)}
-                  className={`font-semibold transition-all py-2 px-3 rounded-lg ${
+                  className={`rounded-xl px-3 py-2 text-sm font-medium transition-all ${
                     isActive(item.path)
-                      ? 'text-white bg-white/20'
-                      : 'text-white/90 hover:text-white hover:bg-white/10'
+                      ? 'bg-slate-900 text-white'
+                      : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
                   }`}
                 >
                   {item.label}
@@ -60,34 +61,26 @@ export default function Header() {
               ))}
             </nav>
 
-            {/* User Menu */}
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => navigate('/profile')}
-                className="btn-primary bg-blue-400 text-white hover:bg-blue-500 font-semibold py-2 px-4 rounded-lg transition-all text-sm"
-              >
+            <div className="flex items-center gap-3">
+              <button onClick={() => navigate('/profile')} className="btn-secondary px-4 py-2">
                 Hồ sơ
               </button>
-              <button
-                onClick={handleLogout}
-                className="btn-primary bg-white text-purple-600 hover:bg-gray-100 font-semibold py-2 px-4 rounded-lg transition-all"
-              >
+              <button onClick={handleLogout} className="btn-primary px-4 py-2">
                 Đăng xuất
               </button>
             </div>
           </div>
         </div>
 
-        {/* Mobile Menu - Simple */}
-        <div className="md:hidden mt-4 flex gap-2 justify-center">
+        <div className="mt-4 flex gap-2 overflow-x-auto pb-1 md:hidden">
           {navItems.map((item) => (
             <button
               key={item.path}
               onClick={() => navigate(item.path)}
-              className={`text-sm font-semibold py-2 px-3 rounded-lg transition-all ${
+              className={`whitespace-nowrap rounded-xl px-3 py-2 text-sm font-medium transition-all ${
                 isActive(item.path)
-                  ? 'text-white bg-white/20'
-                  : 'text-white/90 hover:text-white'
+                  ? 'bg-slate-900 text-white'
+                  : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
               }`}
             >
               {item.label}

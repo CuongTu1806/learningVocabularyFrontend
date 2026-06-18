@@ -6,42 +6,41 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   const footerLinks = [
-    { label: 'Về chúng tôi', href: '#' },
-    { label: 'Điều khoản sử dụng', href: '#' },
-    { label: 'Chính sách bảo mật', href: '#' },
-    { label: 'Liên hệ', href: '#' },
+    { label: 'Về chúng tôi', href: '/dashboard' },
+    { label: 'Điều khoản sử dụng', href: '/dashboard' },
+    { label: 'Chính sách bảo mật', href: '/dashboard' },
+    { label: 'Liên hệ', href: '/profile' },
   ];
 
   const socialLinks = [
-    { icon: '', label: 'Facebook', href: '#' },
-    { icon: '', label: 'Twitter', href: '#' },
-    { icon: '', label: 'Email', href: '#' },
+    { icon: '', label: 'Facebook', href: '/dashboard' },
+    { icon: '', label: 'Twitter', href: '/dashboard' },
+    { icon: '', label: 'Email', href: 'mailto:info@learning.edu' },
   ];
 
   return (
-    <footer className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white border-t border-slate-700">
-      {/* Main Footer Content */}
-      <div className="max-w-7xl mx-auto px-6 py-6">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <footer className="border-t border-slate-200 bg-white text-slate-800">
+      <div className="mx-auto max-w-7xl px-6 py-10">
+        <div className="grid gap-8 md:grid-cols-4">
           {/* Brand */}
           <div>
-            <h3 className="text-base font-bold mb-2 flex items-center gap-1">
-              <span className="text-xl">LV</span>
+            <h3 className="mb-3 flex items-center gap-2 text-base font-semibold">
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-900 text-sm text-white">LV</span>
               Learning Vocabulary
             </h3>
-            <p className="text-slate-400 text-xs">
-              Học tiếng Anh với Spaced Repetition.
+            <p className="max-w-xs text-sm leading-6 text-slate-500">
+              Nền tảng học từ vựng có ôn tập ngắt quãng, quiz, lớp học và bài tập trong cùng một luồng.
             </p>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h4 className="font-bold text-sm mb-2">🔗 Liên kết</h4>
-            <ul className="space-y-1">
+            <h4 className="mb-3 text-sm font-semibold text-slate-900">Liên kết</h4>
+            <ul className="space-y-2">
               <li>
                 <button
                   onClick={() => navigate('/dashboard')}
-                  className="text-slate-400 hover:text-white transition text-xs"
+                  className="text-sm text-slate-500 transition hover:text-slate-900"
                 >
                   Trang chủ
                 </button>
@@ -49,13 +48,13 @@ export default function Footer() {
               <li>
                 <button
                   onClick={() => navigate('/lessons')}
-                  className="text-slate-400 hover:text-white transition text-xs"
+                  className="text-sm text-slate-500 transition hover:text-slate-900"
                 >
                   Bài học
                 </button>
               </li>
               <li>
-                <a href="#" className="text-slate-400 hover:text-white transition text-xs">
+                <a href="/dashboard" className="text-sm text-slate-500 transition hover:text-slate-900">
                   Trợ giúp
                 </a>
               </li>
@@ -64,11 +63,11 @@ export default function Footer() {
 
           {/* Resources */}
           <div>
-            <h4 className="font-bold text-sm mb-2">Tài nguyên</h4>
-            <ul className="space-y-1">
+            <h4 className="mb-3 text-sm font-semibold text-slate-900">Tài nguyên</h4>
+            <ul className="space-y-2">
               {footerLinks.slice(0, 2).map((link, idx) => (
                 <li key={idx}>
-                  <a href={link.href} className="text-slate-400 hover:text-white transition text-xs">
+                  <a href={link.href} className="text-sm text-slate-500 transition hover:text-slate-900">
                     {link.label}
                   </a>
                 </li>
@@ -78,18 +77,18 @@ export default function Footer() {
 
           {/* Contact */}
           <div>
-            <h4 className="font-bold text-sm mb-2">📞 Liên hệ</h4>
-            <div className="space-y-1">
-              <p className="text-slate-400 text-xs">
-                <a href="mailto:info@learning.edu" className="text-blue-400 hover:underline">info@learning.edu</a>
+            <h4 className="mb-3 text-sm font-semibold text-slate-900">Liên hệ</h4>
+            <div className="space-y-2">
+              <p className="text-sm text-slate-500">
+                <a href="mailto:info@learning.edu" className="text-slate-700 transition hover:text-slate-900">info@learning.edu</a>
               </p>
-              <div className="flex gap-2 mt-2">
+              <div className="flex gap-2">
                 {socialLinks.map((link, idx) => (
                   <a
                     key={idx}
                     href={link.href}
                     title={link.label}
-                    className="text-lg hover:opacity-70 transition"
+                    className="rounded-xl border border-slate-200 px-3 py-2 text-xs font-medium text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
                   >
                     {link.icon}
                   </a>
@@ -99,24 +98,20 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="border-t border-slate-700 mt-4 pt-3 flex flex-col md:flex-row justify-between items-center gap-2">
-          {/* Copyright */}
-          <p className="text-slate-400 text-xs">
+        <div className="mt-8 flex flex-col gap-3 border-t border-slate-200 pt-5 md:flex-row md:items-center md:justify-between">
+          <p className="text-sm text-slate-500">
             © {currentYear} Learning Vocabulary Platform
           </p>
 
-          {/* Stats */}
-          <p className="text-slate-400 text-xs flex gap-4">
-            <span>👥 10K+</span>
-            <span>📚 500+</span>
-            <span>⭐ 4.8/5</span>
+          <p className="flex gap-4 text-sm text-slate-500">
+            <span>10K+ người học</span>
+            <span>500+ bài học</span>
+            <span>4.8/5 đánh giá</span>
           </p>
 
-          {/* Top Button */}
           <button
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="text-slate-400 hover:text-white transition text-xs font-semibold"
+            className="text-sm font-medium text-slate-500 transition hover:text-slate-900"
           >
             Top
           </button>

@@ -120,9 +120,9 @@ export default function QuizPlayPage() {
   if (loading) {
     return (
       <Layout>
-        <div className="bg-gradient-to-br from-slate-50 to-slate-100 py-12 h-screen flex items-center justify-center">
+        <div className="flex h-screen items-center justify-center bg-slate-50 py-12">
           <div className="text-center">
-            <p className="text-lg font-semibold text-gray-700">⏳ Đang tải quiz...</p>
+            <p className="text-lg font-semibold text-slate-700">Đang tải quiz...</p>
           </div>
         </div>
       </Layout>
@@ -132,9 +132,9 @@ export default function QuizPlayPage() {
   if (error) {
     return (
       <Layout>
-        <div className="bg-gradient-to-br from-slate-50 to-slate-100 py-12 h-screen flex items-center justify-center">
+        <div className="flex h-screen items-center justify-center bg-slate-50 py-12">
           <div className="text-center">
-            <p className="text-red-600 font-semibold mb-4">❌ {error}</p>
+            <p className="mb-4 font-semibold text-red-600">{error}</p>
             <button
               onClick={() => navigate(-1)}
               className="btn-primary py-2 px-4"
@@ -150,8 +150,8 @@ export default function QuizPlayPage() {
   if (!quiz || quiz.questions.length === 0) {
     return (
       <Layout>
-        <div className="bg-gradient-to-br from-slate-50 to-slate-100 py-12 h-screen flex items-center justify-center">
-          <p className="text-gray-600 font-semibold">❌ Không có câu hỏi</p>
+        <div className="flex h-screen items-center justify-center bg-slate-50 py-12">
+          <p className="font-semibold text-slate-600">Không có câu hỏi</p>
         </div>
       </Layout>
     );
@@ -167,19 +167,19 @@ export default function QuizPlayPage() {
 
   return (
     <Layout>
-      <div className="bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 py-12">
+      <div className="bg-slate-50 py-12 min-h-screen">
         <div className="max-w-2xl mx-auto px-6">
           {/* Progress Bar */}
           <div className="mb-6">
-            <div className="flex justify-between text-white mb-2 text-sm font-semibold">
+            <div className="mb-2 flex justify-between text-sm font-semibold text-slate-700">
               <span>Câu {currentIndex + 1}/{quiz.questions.length}</span>
               <span>
                 Đã trả lời {Object.keys(answers).length}/{quiz.questions.length} | Đã làm được {Math.floor(elapsedTime / 60)}:{String(elapsedTime % 60).padStart(2, '0')}
               </span>
             </div>
-            <div className="w-full bg-white/30 rounded-full h-2">
+            <div className="h-2 w-full rounded-full bg-slate-200">
               <div
-                className="bg-white rounded-full h-2 transition-all"
+                className="h-2 rounded-full bg-slate-900 transition-all"
                 style={{
                   width: `${((currentIndex + 1) / quiz.questions.length) * 100}%`,
                 }}
@@ -188,8 +188,8 @@ export default function QuizPlayPage() {
           </div>
 
           {/* Question Card */}
-          <div className="glass-effect p-8 mb-6 rounded-xl">
-            <h2 className="text-2xl font-bold text-white mb-6 text-center">
+          <div className="card mb-6 p-8">
+            <h2 className="mb-6 text-center text-2xl font-semibold text-slate-900">
               {current.content}
             </h2>
 
@@ -231,7 +231,7 @@ export default function QuizPlayPage() {
           </div>
 
           {/* Help Text */}
-          <p className="text-white/80 text-sm text-center mt-6">
+          <p className="mt-6 text-center text-sm text-slate-500">
             {answered ? 'Bạn đã trả lời câu này' : 'Bạn chưa trả lời câu này'}
           </p>
         </div>
@@ -243,7 +243,7 @@ export default function QuizPlayPage() {
 function QuestionRenderer({ quizType, question, selectedAnswer, onAnswer }) {
   if (!question.answers || question.answers.length === 0) {
     return (
-      <div className="text-white/80 text-center">Không có câu trả lời</div>
+      <div className="text-center text-slate-500">Không có câu trả lời</div>
     );
   }
 
@@ -255,10 +255,10 @@ function QuestionRenderer({ quizType, question, selectedAnswer, onAnswer }) {
           <button
             key={idx}
             onClick={() => onAnswer(answer)}
-            className={`w-full p-4 rounded-lg font-semibold text-lg transition-all border-2 ${
+            className={`w-full rounded-lg border-2 p-4 text-lg font-semibold transition-all ${
               selectedAnswer === answer
-                ? 'bg-white/40 border-white text-white'
-                : 'bg-white/20 border-white/30 text-white hover:bg-white/30 hover:border-white/70'
+                ? 'border-slate-900 bg-slate-900 text-white'
+                : 'border-slate-200 bg-white text-slate-800 hover:bg-slate-50'
             }`}
           >
             {answer}
@@ -285,17 +285,17 @@ function QuestionRenderer({ quizType, question, selectedAnswer, onAnswer }) {
           value={input}
           onChange={handleInputChange}
           placeholder="Gõ đáp án..."
-          className="w-full p-4 rounded-lg text-gray-900 font-semibold text-lg border-2 border-white/50 focus:border-white focus:outline-none focus:ring-0"
+          className="w-full rounded-lg border-2 border-slate-200 bg-white p-4 text-lg font-semibold text-slate-800 placeholder:text-slate-400 focus:border-slate-900 focus:outline-none"
           autoFocus
         />
-        <p className="text-white/80 text-sm text-center">
+        <p className="text-center text-sm text-slate-500">
           Gõ từ tiếng Anh tương ứng với câu Tiếng Việt trên
         </p>
       </div>
     );
   }
 
-  return <div className="text-white/80">Kiểu quiz không được hỗ trợ</div>;
+  return <div className="text-slate-500">Kiểu quiz không được hỗ trợ</div>;
 }
 
 function QuizResultPage({ result, lessonId, quizType }) {
@@ -306,29 +306,28 @@ function QuizResultPage({ result, lessonId, quizType }) {
   const [showDetails, setShowDetails] = useState(false);
 
   const getMessage = () => {
-    if (percentage >= 80) return { emoji: '', text: 'Xuật sắc!' };
-    if (percentage >= 60) return { emoji: '', text: 'Tốt!' };
-    return { emoji: '', text: 'Tiếp tục cố gắng!' };
+    if (percentage >= 80) return { text: 'Xuất sắc!' };
+    if (percentage >= 60) return { text: 'Tốt!' };
+    return { text: 'Tiếp tục cố gắng!' };
   };
 
   const message = getMessage();
 
   return (
-    <div className="bg-gradient-to-br from-slate-50 to-slate-100 py-12 min-h-screen">
+    <div className="min-h-screen bg-slate-50 py-12">
       <div className="max-w-2xl w-full mx-auto px-6">
         {/* Score Summary Card */}
-        <div className="card text-center mb-8">
-          <div className="text-6xl mb-4">{message.emoji}</div>
-          <h2 className="text-3xl font-bold mb-4">{message.text}</h2>
+        <div className="card mb-8 text-center">
+          <h2 className="mb-4 text-3xl font-semibold text-slate-900">{message.text}</h2>
 
-          <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-lg mb-6">
-            <div className="text-5xl font-bold text-blue-600 mb-2">
+          <div className="mb-6 rounded-lg bg-slate-50 p-6">
+            <div className="mb-2 text-5xl font-semibold text-slate-900">
               {score}/{totalQuestions}
             </div>
-            <p className="text-gray-700 font-semibold mb-3">Đúng {percentage}%</p>
-            <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+            <p className="mb-3 font-semibold text-slate-700">Đúng {percentage}%</p>
+            <div className="h-3 w-full overflow-hidden rounded-full bg-slate-200">
               <div
-                className="bg-gradient-to-r from-blue-600 to-purple-600 h-3 transition-all"
+                className="h-3 bg-slate-900 transition-all"
                 style={{ width: `${percentage}%` }}
               ></div>
             </div>
@@ -337,27 +336,27 @@ function QuizResultPage({ result, lessonId, quizType }) {
           <div className="space-y-3">
             <button
               onClick={() => setShowDetails(!showDetails)}
-              className="w-full py-3 font-semibold bg-purple-100 text-purple-700 hover:bg-purple-200 rounded-lg transition-all"
+              className="w-full rounded-lg bg-slate-100 py-3 font-semibold text-slate-700 transition-all hover:bg-slate-200"
             >
               {showDetails ? '▼ Ẩn chi tiết' : '▶ Xem chi tiết'} ({resultDetails.length} câu)
             </button>
             <button
               onClick={() =>
-                window.location.href = `/quiz/${lessonId}?mode=${quizType}`
+                globalThis.location.href = `/quiz/${lessonId}?mode=${quizType}`
               }
               className="btn-primary w-full py-3 font-semibold"
             >
               Làm lại chế độ này
             </button>
             <button
-              onClick={() => (window.location.href = `/quiz/${lessonId}`)}
+              onClick={() => (globalThis.location.href = `/quiz/${lessonId}`)}
               className="btn-secondary w-full py-3 font-semibold"
             >
               Chọn chế độ khác
             </button>
             <button
-              onClick={() => (window.location.href = '/lessons')}
-              className="text-blue-600 hover:underline w-full py-3 font-semibold"
+              onClick={() => (globalThis.location.href = '/lessons')}
+              className="w-full py-3 font-semibold text-slate-900 underline-offset-4 hover:underline"
             >
               Danh sách bài
             </button>
@@ -367,27 +366,27 @@ function QuizResultPage({ result, lessonId, quizType }) {
         {/* Detail Results */}
         {showDetails && resultDetails.length > 0 && (
           <div className="space-y-4">
-            <h3 className="text-2xl font-bold mb-4">Chi tiết câu trả lời</h3>
+            <h3 className="mb-4 text-2xl font-semibold text-slate-900">Chi tiết câu trả lời</h3>
             {resultDetails.map((detail, idx) => (
               <div
                 key={idx}
                 className={`card border-l-4 ${
-                  detail.correct ? 'border-l-green-500 bg-green-50' : 'border-l-red-500 bg-red-50'
+                  detail.correct ? 'border-l-emerald-500 bg-emerald-50' : 'border-l-red-500 bg-red-50'
                 }`}
               >
                 <div className="flex items-start gap-3 mb-3">
-                  <div className="text-2xl flex-shrink-0">
-                    {detail.correct ? '✅' : '❌'}
+                  <div className="flex-shrink-0 text-2xl">
+                    {detail.correct ? 'Đúng' : 'Sai'}
                   </div>
                   <div className="flex-grow">
-                    <p className="font-semibold text-gray-900">Câu {idx + 1}</p>
-                    <p className="text-gray-700 mt-1">{detail.content}</p>
+                    <p className="font-semibold text-slate-900">Câu {idx + 1}</p>
+                    <p className="mt-1 text-slate-600">{detail.content}</p>
                   </div>
                 </div>
 
-                <div className="bg-white/60 p-3 rounded-lg space-y-2 text-sm">
+                <div className="space-y-2 rounded-lg bg-white p-3 text-sm">
                   <div>
-                    <p className="text-gray-600 font-medium">Bạn trả lời:</p>
+                    <p className="font-medium text-slate-500">Bạn trả lời:</p>
                     <p className={`${detail.correct ? 'text-green-700 font-semibold' : 'text-red-700'}`}>
                       {detail.userAnswer || '(bỏ trống)'}
                     </p>
@@ -395,8 +394,8 @@ function QuizResultPage({ result, lessonId, quizType }) {
 
                   {!detail.correct && (
                     <div>
-                      <p className="text-gray-600 font-medium">Đáp án đúng:</p>
-                      <p className="text-green-700 font-semibold">{detail.correctAnswer}</p>
+                      <p className="font-medium text-slate-500">Đáp án đúng:</p>
+                      <p className="font-semibold text-emerald-700">{detail.correctAnswer}</p>
                     </div>
                   )}
                 </div>

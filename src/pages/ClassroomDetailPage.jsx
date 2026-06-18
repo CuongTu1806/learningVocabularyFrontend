@@ -414,26 +414,26 @@ export default function ClassroomDetailPage() {
 
   return (
     <Layout>
-      <div className="bg-gradient-to-br from-slate-50 to-slate-100 py-12 min-h-screen">
-        <div className="max-w-4xl mx-auto px-6">
+      <div className="min-h-screen bg-slate-50 py-12">
+        <div className="mx-auto max-w-4xl px-6">
           <button
             type="button"
             onClick={() => navigate('/classes')}
-            className="mb-6 text-blue-600 hover:text-blue-800 font-semibold flex items-center gap-2"
+            className="mb-6 flex items-center gap-2 font-semibold text-slate-900 underline-offset-4 hover:underline"
           >
             ← Danh sách lớp
           </button>
 
-          <div className="card mb-8 bg-gradient-to-r from-blue-50 to-purple-50 border-blue-100">
+          <div className="card mb-8 border-slate-200 bg-white">
             <div className="flex flex-wrap justify-between gap-4 items-start">
               <div>
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">{classroom.name}</h1>
-                <p className="text-gray-600">{classroom.description || 'Không có mô tả'}</p>
-                <p className="text-sm text-gray-400 mt-3">Mã lớp: #{classroom.id}</p>
+                <h1 className="mb-2 text-3xl font-semibold tracking-tight text-slate-900">{classroom.name}</h1>
+                <p className="text-slate-600">{classroom.description || 'Không có mô tả'}</p>
+                <p className="mt-3 text-sm text-slate-500">Mã lớp: #{classroom.id}</p>
               </div>
               <div className="flex flex-wrap gap-2 items-center">
                 {isOwner && (
-                  <span className="text-xs font-semibold px-3 py-1 rounded-full bg-purple-100 text-purple-700 h-fit">
+                  <span className="h-fit rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
                     Chủ lớp
                   </span>
                 )}
@@ -452,26 +452,26 @@ export default function ClassroomDetailPage() {
               <button
                 type="button"
                 onClick={() => setTab('board')}
-                className={`px-3 py-1.5 rounded-full text-sm font-semibold ${tab === 'board' ? 'bg-blue-600 text-white' : 'bg-white text-slate-600 border border-slate-200'}`}>
+                className={`rounded-full px-3 py-1.5 text-sm font-semibold ${tab === 'board' ? 'bg-slate-900 text-white' : 'border border-slate-200 bg-white text-slate-600'}`}>
                 Bảng tin
               </button>
               <button
                 type="button"
                 onClick={() => setTab('assignments')}
-                className={`px-3 py-1.5 rounded-full text-sm font-semibold ${tab === 'assignments' ? 'bg-blue-600 text-white' : 'bg-white text-slate-600 border border-slate-200'}`}>
+                className={`rounded-full px-3 py-1.5 text-sm font-semibold ${tab === 'assignments' ? 'bg-slate-900 text-white' : 'border border-slate-200 bg-white text-slate-600'}`}>
                 Bài tập
               </button>
               <button
                 type="button"
                 onClick={() => setTab('members')}
-                className={`px-3 py-1.5 rounded-full text-sm font-semibold ${tab === 'members' ? 'bg-blue-600 text-white' : 'bg-white text-slate-600 border border-slate-200'}`}>
+                className={`rounded-full px-3 py-1.5 text-sm font-semibold ${tab === 'members' ? 'bg-slate-900 text-white' : 'border border-slate-200 bg-white text-slate-600'}`}>
                 Thành viên
               </button>
             </div>
           </div>
 
           {actionMsg && (
-            <div className="mb-4 p-3 rounded-lg bg-green-50 text-green-800 text-sm font-medium border border-green-200">
+            <div className="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm font-medium text-emerald-800">
               {actionMsg}
             </div>
           )}

@@ -4,7 +4,7 @@ import Footer from './Footer';
 
 export default function Layout({ children, hideFooter = false, mainClassName = '' }) {
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex min-h-screen flex-col bg-slate-50 text-slate-800">
       <Header />
       <main className={`flex-grow min-h-0 ${mainClassName}`}>
         {children}
